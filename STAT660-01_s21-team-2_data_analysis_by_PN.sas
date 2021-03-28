@@ -20,10 +20,8 @@ answer the research questions below
 * Research Question 1 Analysis Starting Point;
 *******************************************************************************;
 /*
-Question 1 of 3: What are the top five schools that experienced the biggest
-increase in "Percent (%) Eligible Free (K-12)" between AY2014-15 and AY2015-16?
-Rationale: This should help identify schools to consider for new outreach based
-upon increasing child-poverty levels.
+Question 1 of 3: Place holder.
+Rationale
 Note: 
 */
 
