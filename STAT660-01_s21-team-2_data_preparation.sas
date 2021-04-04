@@ -82,7 +82,7 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehwgts_2
         %end;
 %mend;
 %macro loadDatasets;
-    %do i = 1 %to 4;
+    %do i = 1 %to 3;
         %loadDataIfNotAlreadyAvailable(
             &&inputDataset&i.DSN.,
             &&inputDataset&i.URL.,
