@@ -28,7 +28,7 @@ https://github.com/anguyen82-stat660/team-2_project_repo/blob/main/data/ehact_20
 */
 %let inputDataset2DSN = ehresp_2014_raw;
 %let inputDataset2URL =
-https://github.com/anguyen82-stat660/team-2_project_repo/raw/main/data/ehresp_2014.csv
+https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehresp_2014.csv
 ;
 %let inputDataset2Type = csv;
 
@@ -43,7 +43,7 @@ https://github.com/anguyen82-stat660/team-2_project_repo/raw/main/data/ehresp_20
 */
 %let inputDataset3DSN = ehwgts_2014_raw;
 %let inputDataset3URL =
-https://github.com/anguyen82-stat660/team-2_project_repo/raw/main/data/ehwgts_2014.csv
+https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehwgts_2014.csv
 ;
 %let inputDataset3Type = csv;
 
