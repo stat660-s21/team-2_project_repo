@@ -13,7 +13,7 @@
 */
 %let inputDataset1DSN = ehact_2014_raw;
 %let inputDataset1URL =
-https://github.com/anguyen82-stat660/team-2_project_repo/blob/main/data/ehact_2014.csv
+https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehact_2014.csv
 ;
 %let inputDataset1Type = csv;
 
@@ -82,7 +82,7 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehwgts_2
         %end;
 %mend;
 %macro loadDatasets;
-    %do i = 1 %to 4;
+    %do i = 1 %to 3;
         %loadDataIfNotAlreadyAvailable(
             &&inputDataset&i.DSN.,
             &&inputDataset&i.URL.,
