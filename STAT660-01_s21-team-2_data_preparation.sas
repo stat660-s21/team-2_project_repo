@@ -20,7 +20,9 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehact_20
 
 /* 
 [Dataset 2 Name] ehresp_2014
-[Dataset Description] The EH Activity file, which contains information such as the activity number, whether secondary eating occurred during the activity, and the duration of secondary eating. There are 5 variables.
+[Dataset Description] The EH Activity file, which contains information such as 
+the activity number, whether secondary eating occurred during the activity, and 
+the duration of secondary eating. There are 5 variables.
 [Experimental Unit Description] Survey Respondents
 [Number of Observations] 11,212     
 [Number of Features] 37
@@ -35,7 +37,9 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehresp_2
 
 /* 
 [Dataset 2 Name] ehwgts_2014
-[Dataset Description] The EH Activity file, which contains information such as the activity number, whether secondary eating occurred during the activity, and the duration of secondary eating. There are 5 variables.
+[Dataset Description] The EH Activity file, which contains information such as 
+the activity number, whether secondary eating occurred during the activity, 
+and the duration of secondary eating. There are 5 variables.
 [Experimental Unit Description] Survey Respondents
 [Number of Observations] 11,212     
 [Number of Features] 161
