@@ -95,3 +95,56 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehwgts_2
     %end;
 %mend;
 %loadDatasets
+
+/* For ehact_2014_raw tucaseID and tuactivity_n form a composite key so any rows
+correpsonding to multiple values should be removed. In addition, rows should be 
+removed if they are missing values for any of the composite key columns.
+
+After running the proc sort step below, the new dataset ehact_2014 will have no
+duplicate/repeated unique id values, and all unique id values will correspond
+to our experimental units of interest, which are a single person from a 
+specific household identified by tucaseID. This means thecolumns tucaseID and 
+tuactivity_n are guaranteed to form a composite key.
+*/
+proc sort
+    nodupkey
+	data=ehact_2014_raw
+	dupout=ehact_2014_raw_dups
+	out=ehact_2014_households
+	;
+	where
+	/* remove rows with missing composite key components */
+	not(missing(tucaseid))
+	and
+	not(missing(tuactivity_n))
+    ;
+    by 
+        tucaseid
+	    tuactivity_n
+	;
+run;
+
+/* For ehresp_2014_raw the column tucaseID is a primary key so any rows
+corresponding to multiple values should be removed. In addition, rows should be
+removed if they are missing values for tucaseID.
+
+After running the proc sort step below, the new dataset ehresp_2014 will have
+no duplicate/repeated unique id values, and all unique id values will correspond
+to our experimental unit of interest, which are United States households. This
+means the column tucaseID in ehresp is guaranteed to be a primary key.
+*/
+proc sort
+        nodupkey
+		data=ehresp_2014_raw
+		dupout=ehresp_2014_raw_dups
+		out=ehresp_2014_households
+    ;
+	where
+	    /* remove rows with missing primary key */
+	    not(missing(tucaseID))
+    ;
+    by
+	    tucaseid
+	;
+run;
+ 
