@@ -23,8 +23,9 @@ answer the research questions below
 *******************************************************************************;
 /*
 Question 1 of 3: What type(s) of activities lead to secondary eating?
-Rationale: Knowing which type(s) of activities increase(s) the likelihood of secondary eating could help devise preventive strategies.
-Note: 
+Rationale: Knowing which type(s) of activities increase(s) the likelihood of 
+		   secondary eating could help devise preventive strategies.
+Note: Perform Chi-square test on the columns EUEAT and ERTSEAT
 */
 
 
@@ -32,15 +33,22 @@ Note:
 * Research Question 2 Analysis Starting Point;
 *******************************************************************************;
 /*
-Question 2 of 3: Is there an inverse of proportional relationship between primary and seconday eating among and within household?
+Question 2 of 3: Is there an inverse of proportional relationship between primary 
+				 and seconday eating among and within household?
 Rationale: By answering this question helps generalize common eating habits of people.
-*/
+Note: Find the correlation between the columns ERTPREAT and ERTSEAT of ehresp_2014_raw
+*/ 
 
 
 *******************************************************************************;
 * Research Question 3 Analysis Starting Point;
 *******************************************************************************;
 /*
-Question 3 of 3: Is there a significant difference in secondary eating (both in duration and frequency) among people who exercise and who do not?
-Rationale: By statistically prove that exercise can positivel affect the habit of secondary eating, we can promote the idea and encourage people to do more physical activities 
-*/
+Question 3 of 3: Is there a significant difference in secondary eating (both in 
+				 duration and frequency) among people who exercise and who do not?
+Rationale: By statistically prove that exercise can positivel affect the habit of 
+		   secondary eating, we can promote the idea and encourage people to do more
+		   physical activities. 
+Note: Perform paired tow-sample t-test(duration) and chi-square test (frequency) 
+	  on the columns ERTPREAT and ERTSEAT of ehresp_2014_raw. 
+*/ 
