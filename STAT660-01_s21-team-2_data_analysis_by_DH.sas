@@ -38,25 +38,48 @@ removed prior to analyzing data.
 
 title "Descriptive Statistics for ehact_2014";
 proc means
-        data=ehact_2014
+        data=ehact_2014_raw(drop=tucaseid)
         maxdec=1
         missing
         n /* number of observations */
         nmiss /* number of missing values */
         min q1 median q3 max  /* five-number summary */
         mean std /* two-number summary */
+		; 
+	var
+		EUEDUR24
+	; 
+	label
+		EUEDUR24="Second Eating Duration given activity"
+	;
 run;
 title;
 
+proc format; 
+	value miss 
+		-1,-2= "invalid"
+		;
+run;
+
 proc freq
-        data=ehact_2014
+        data=ehact_2014_raw
         noprint
     ;
     table
-        ERTSEAT
+        EUEDUR24
         / out= primary_eating_table
     ;
 run;
+
+title "Inspect EUEDUR4 from ehresp_2014_raw";
+proc print data=primary_eating_table;
+format euedur24 miss.;
+label EUEDUR24="Second Eating Duration given activity";
+run;
+
+
+
+
 
 *******************************************************************************;
 * Research Question 2 Analysis Starting Point;
@@ -76,14 +99,16 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.
 */ 
 
-proc freq
-        data=ehresp_2014
-        noprint
-    ;
-    table
-        PCTGE1500
-        / out=sat15_PCTGE1500_frequencies
-    ;
+proc print data=ehresp_2014_raw(obs=5);run;
+
+proc corr data=ehresp_2014_raw; 
+var ertpreat; 
+with ertseat; 
+run; 
+
+title "Scatterplot of Primary vs Secondary Eating";
+proc gplot data=ehresp_2014_raw; 
+plot ertpreat*ertseat; 
 run;
 
 
@@ -98,7 +123,7 @@ Rationale: By statistically prove that exercise can positivel affect the habit
 of secondary eating, we can promote the idea and encourage people to do more
 physical activities. 
 		   
-Note: Perform two-sample t-test(duration) on the columns ERTPREAT and 
+Note: Perform two-sample t-test(duration) on the columns EUEXERCISE and 
 ERTSEAT of ehresp_2014_raw. 
 
 Limitations: Several entries in ERTSEAT are coded as negative values
@@ -108,7 +133,7 @@ blank values, which can be removed prior to analyzing data.
 */ 
 
 proc means
-        data=ehwgts_2014
+        data=ehresp_2014_raw
         maxdec=1
         missing
         n /* number of observations */
@@ -118,5 +143,7 @@ proc means
 run;
 title;
 
-
+proc sgplot data=ehresp_2014_raw; 
+	vbox ertseat/ category=euexercise; 
+run;
 
