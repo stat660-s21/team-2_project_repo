@@ -5,10 +5,15 @@
 
 /* 
 [Dataset 1 Name] ehact_2014
+
 [Dataset Description] Eating & Health (EH) respondent file
+
 [Experimental Unit Description] Survey Respondents
-[Number of Observations] 12,719      
+
+[Number of Observations] 12,719  
+ 
 [Number of Features] 5
+
 [Data Source] https://www.kaggle.com/bls/eating-health-module-dataset
 */
 %let inputDataset1DSN = ehact_2014_raw;
@@ -20,12 +25,17 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehact_20
 
 /* 
 [Dataset 2 Name] ehresp_2014
+
 [Dataset Description] The EH Activity file, which contains information such as 
 the activity number, whether secondary eating occurred during the activity, and 
 the duration of secondary eating. There are 5 variables.
+
 [Experimental Unit Description] Survey Respondents
+
 [Number of Observations] 11,212     
+
 [Number of Features] 37
+
 [Data Source] https://www.kaggle.com/bls/eating-health-module-dataset
 */
 %let inputDataset2DSN = ehresp_2014_raw;
@@ -37,12 +47,17 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehresp_2
 
 /* 
 [Dataset 2 Name] ehwgts_2014
+
 [Dataset Description] The EH Activity file, which contains information such as 
 the activity number, whether secondary eating occurred during the activity, 
 and the duration of secondary eating. There are 5 variables.
+
 [Experimental Unit Description] Survey Respondents
-[Number of Observations] 11,212     
+
+[Number of Observations] 11,212   
+ 
 [Number of Features] 161
+
 [Data Source] https://www.kaggle.com/bls/eating-health-module-dataset
 */
 %let inputDataset3DSN = ehwgts_2014_raw;
