@@ -8,13 +8,23 @@
 
 [Dataset Description] Eating & Health (EH) respondent file
 
-[Experimental Unit Description] Survey Respondents
+[Experimental Unit Description] The EH Activity file, which contains information 
+such as the activity number, whether secondary eating occurred during the 
+activity, and the duration of secondary eating. There are 5 variables.
 
 [Number of Observations] 12,719  
  
 [Number of Features] 5
 
-[Data Source] https://www.kaggle.com/bls/eating-health-module-dataset
+[Data Source] This file was downloaded from
+https://www.kaggle.com/bls/eating-health-module-dataset in an archive.
+
+[Data Dictionary] http://www.bls.gov/tus/ehmintcodebk1416.pdf
+
+[Unique ID Schema] The columns "tucaseid" and "tuactivity_n" form a composite
+key which corresponds to a member of a unique family based on tucaseid and their
+eating activities.
+
 */
 %let inputDataset1DSN = ehact_2014_raw;
 %let inputDataset1URL =
@@ -26,17 +36,24 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehact_20
 /* 
 [Dataset 2 Name] ehresp_2014
 
-[Dataset Description] The EH Activity file, which contains information such as 
-the activity number, whether secondary eating occurred during the activity, and 
-the duration of secondary eating. There are 5 variables.
+[Dataset Description] The EH Respondent file, which contains information about 
+EH respondents, including general health and body mass index. There are 37 
+variables. TucaseID is 1 since only one family member response from each family
+was record.
 
-[Experimental Unit Description] Survey Respondents
+[Experimental Unit Description] Unique Family Survey Respondent
 
 [Number of Observations] 11,212     
 
 [Number of Features] 37
 
-[Data Source] https://www.kaggle.com/bls/eating-health-module-dataset
+[Data Source] This file was downloaded from
+https://www.kaggle.com/bls/eating-health-module-dataset in an archive.
+
+[Data Dictionary] http://www.bls.gov/tus/ehmintcodebk1416.pdf
+
+[Unique ID Schema] The columns "tucaseid" and "tulineno" form a composite key
+which correposnds to a member of a unique family responding to the survey.
 */
 %let inputDataset2DSN = ehresp_2014_raw;
 %let inputDataset2URL =
@@ -48,9 +65,8 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehresp_2
 /* 
 [Dataset 2 Name] ehwgts_2014
 
-[Dataset Description] The EH Activity file, which contains information such as 
-the activity number, whether secondary eating occurred during the activity, 
-and the duration of secondary eating. There are 5 variables.
+[Dataset Description] The EH Replicate weights file, which contains 
+miscellaneous EH weights. There are 161 variables.
 
 [Experimental Unit Description] Survey Respondents
 
@@ -58,7 +74,12 @@ and the duration of secondary eating. There are 5 variables.
  
 [Number of Features] 161
 
-[Data Source] https://www.kaggle.com/bls/eating-health-module-dataset
+[Data Source] This file was downloaded from
+https://www.kaggle.com/bls/eating-health-module-dataset in an archive.
+
+[Data Dictionary] http://www.bls.gov/tus/ehmintcodebk1416.pdf
+
+[Unique ID Schema] The column tucase id is a unique key.
 */
 %let inputDataset3DSN = ehwgts_2014_raw;
 %let inputDataset3URL =
@@ -111,15 +132,16 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehwgts_2
 %mend;
 %loadDatasets
 
-/* For ehact_2014_raw tucaseID and tuactivity_n form a composite key so any rows
-correpsonding to multiple values should be removed. In addition, rows should be 
-removed if they are missing values for any of the composite key columns.
+/* For ehact_2014_raw the columns tucaseID and tuactivity_n form a composite 
+key so any rowscorrepsonding to multiple values should be removed. In addition,
+rows should be removed if they are missing values for any of the composite key
+columns.
 
 After running the proc sort step below, the new dataset ehact_2014 will have no
 duplicate/repeated unique id values, and all unique id values will correspond
-to our experimental units of interest, which are a single person from a 
-specific household identified by tucaseID. This means thecolumns tucaseID and 
-tuactivity_n are guaranteed to form a composite key.
+to our experimental units of interest, which are the eating activities of
+a person from a family. This means thecolumns tucaseID and tuactivity_n are 
+guaranteed to form a composite key.
 */
 proc sort
     nodupkey
@@ -139,20 +161,51 @@ proc sort
 	;
 run;
 
-/* For ehresp_2014_raw the column tucaseID is a primary key so any rows
-corresponding to multiple values should be removed. In addition, rows should be
-removed if they are missing values for tucaseID.
+/* For ehresp_2014_raw the columns tucaseID and tulineno form a composite key 
+so any rowscorresponding to multiple values should be removed. In addition, 
+rows should be removed if they are missing values for tucaseID.
 
 After running the proc sort step below, the new dataset ehresp_2014 will have
 no duplicate/repeated unique id values, and all unique id values will correspond
-to our experimental unit of interest, which are United States households. This
-means the column tucaseID in ehresp is guaranteed to be a primary key.
+to our experimental unit of interest, which are a member of a unique household in
+the United states. This means the columns tucaseid and tulineno in ehresp are 
+guaranteed to form a primary key.
 */
 proc sort
         nodupkey
 		data=ehresp_2014_raw
 		dupout=ehresp_2014_raw_dups
 		out=ehresp_2014_households
+    ;
+	where
+	    /* remove rows with missing composite key components */
+	    not(missing(tucaseid))
+		and
+		/*remove rows for missing family person id number */
+		not(missing(tulineno)
+    ;
+    by
+	    tucaseid
+		tulineno
+	;
+run;
+ 
+
+/*
+For ehwgts_2014_raw, the column tucaseid is a primary key, so any rows
+corresponding to multiple values should be removed. In addition, rows should
+be removed if they are missing values for tucaseid.
+
+After running the proc sort step below, the new dataset ehwgts_2014 will have
+no duplicate/repeated unique id values, and all unique id values will
+correspond to our experiment unit of interest, which are individuals
+in unique U.S. families.
+*/
+proc sort
+        nodupkey
+		data=ehwgts_2014_raw
+		dupout=ehwgts_2014_raw_dups
+		out=ehwgts_2014
     ;
 	where
 	    /* remove rows with missing primary key */
@@ -162,4 +215,3 @@ proc sort
 	    tucaseid
 	;
 run;
- 

@@ -36,6 +36,9 @@ for poverty in the United States so proc freq will be used often.
 3 - 130% of poverty threshold < Income < 185% of poverty threshold
 4 - Income > 130% of poverty threshold
 5 - Income <= 130% of poverty threshold
+
+Limitations: Values in ERINCOME not integers (1,5) should be excluded since 
+these contain non-valid data.
 */
 
 /* Output frequencies of ERINCOME to a dataset for manual inspection */
@@ -52,9 +55,12 @@ run;
 /* use manual inspection to create bins to study missing-value distribution */
 proc format;
     value $ERINCOME_bins
-	    "*", "NA"="Explicity Missing"
-		"0.00"="Potentially Missing"
-		other="Valid Numerical Value"
+	    "1", ="Income > 185% of poverty threshold"
+		"2"="Income < = 185% of poverty threshold"
+		"3"="130% of poverty threshold < Income < 185% of poverty threshold"
+		"4"="Income > 130% of poverty threshold"
+		"5"="Income <= 130% of poverty threshold"
+		other="Invalid entry"
 	;
 run;
 
@@ -126,6 +132,9 @@ pattern or relationship?
 
 Note: This compares the column BMI ERBMI of ehresp_2014 with the highest value 
 of tuactivity_n for the same ID in ehact_2014.csv.
+
+Limitations: Values of bmi are only properly defined if the individual has
+valid entries for height and weight that is EUHGT > 0 and EUWGT > 0.
 */
 title "Inspect ERBMI from ehresp_2014.csv";
 proc means
@@ -164,6 +173,9 @@ Note: This compares the column EUEXERCISE of enresp2014.csv with the highest
 value of tuactivity_n for the same ID in ehact_2014.csv. EUEXERCISE is a
 categorical variable with entries 1 - Yes or 2 - No. So I will need to count
 frequencies.
+
+Limitations: Values of Exercise are limited to integer values 1 or 2. 1-
+exercise besides work 2 - no exercise.
 */
 
 /* Output frequencies of EUEXERCISE to a dataset for manual inspection */
@@ -180,9 +192,9 @@ run;
 /* use manual inspection to create bins to study missing-value distribution */
 proc format;
     value $EUEXERCISE_bins
-	    "*", "NA"="Explicity Missing"
-		"0.00"="Potentially Missing"
-		other="Valid Numerical Value"
+	    "1", ="Exercise in the Last 7 Days Besides Work"
+		"2"="No Exercise in the Last 7 Days Besides Work"
+		other="Invalid Numerical Value"
 	;
 run;
 
