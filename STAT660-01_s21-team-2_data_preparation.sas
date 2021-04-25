@@ -22,7 +22,6 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehact_20
 ;
 %let inputDataset1Type = csv;
 
-
 /* 
 [Dataset 2 Name] ehresp_2014
 
@@ -43,7 +42,6 @@ the duration of secondary eating. There are 5 variables.
 https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehresp_2014.csv
 ;
 %let inputDataset2Type = csv;
-
 
 /* 
 [Dataset 2 Name] ehwgts_2014
@@ -134,8 +132,8 @@ proc sort
 	not(missing(tuactivity_n))
     ;
     by 
-        tucaseid
-	    tuactivity_n
+		tucaseid
+		tuactivity_n
 	;
 run;
 
@@ -163,3 +161,26 @@ proc sort
 	;
 run;
  
+/*
+For ehwgts_2014_raw, the column tucaseid is a primary key, so any rows
+corresponding to multiple values should be removed. In addition, rows should
+be removed if they are missing values for tucaseid.
+After running the proc sort step below, the new dataset ehwgts_2014 will have
+no duplicate/repeated unique id values, and all unique id values will
+correspond to our experiment unit of interest, which are individuals
+in unique U.S. families.
+*/
+proc sort
+        nodupkey
+		data=ehwgts_2014_raw
+		dupout=ehwgts_2014_raw_dups
+		out=ehwgts_2014
+    ;
+	where
+	    /* remove rows with missing primary key */
+	    not(missing(tucaseID))
+    ;
+    by
+	    tucaseid
+	;
+run;
