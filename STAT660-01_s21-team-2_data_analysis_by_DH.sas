@@ -54,6 +54,7 @@ proc means
 run;
 title;
 
+*Creating common format for values in 3 data sets;
 proc format; 
 	value miss 
 		-1,-2,-3= "invalid"
