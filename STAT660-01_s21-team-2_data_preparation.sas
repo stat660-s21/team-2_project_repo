@@ -120,18 +120,18 @@ specific household identified by tucaseID. This means thecolumns tucaseID and
 tuactivity_n are guaranteed to form a composite key.
 */
 proc sort
-    nodupkey
+	nodupkey
 	data=ehact_2014_raw
 	dupout=ehact_2014_raw_dups
 	out=ehact_2014_households
 	;
 	where
 	/* remove rows with missing composite key components */
-	not(missing(tucaseid))
-	and
-	not(missing(tuactivity_n))
-    ;
-    by 
+		not(missing(tucaseid))
+		and
+		not(missing(tuactivity_n))
+	;
+	by 
 		tucaseid
 		tuactivity_n
 	;
@@ -147,17 +147,17 @@ to our experimental unit of interest, which are United States households. This
 means the column tucaseID in ehresp is guaranteed to be a primary key.
 */
 proc sort
-        nodupkey
-		data=ehresp_2014_raw
-		dupout=ehresp_2014_raw_dups
-		out=ehresp_2014_households
-    ;
+	nodupkey
+	data=ehresp_2014_raw
+	dupout=ehresp_2014_raw_dups
+	out=ehresp_2014_households
+	;
 	where
-	    /* remove rows with missing primary key */
-	    not(missing(tucaseID))
-    ;
-    by
-	    tucaseid
+		/* remove rows with missing primary key */
+		not(missing(tucaseID))
+	;
+	by
+		tucaseid
 	;
 run;
  
@@ -171,16 +171,16 @@ correspond to our experiment unit of interest, which are individuals
 in unique U.S. families.
 */
 proc sort
-        nodupkey
-		data=ehwgts_2014_raw
-		dupout=ehwgts_2014_raw_dups
-		out=ehwgts_2014
-    ;
+	nodupkey
+	data=ehwgts_2014_raw
+	dupout=ehwgts_2014_raw_dups
+	out=ehwgts_2014
+	;
 	where
-	    /* remove rows with missing primary key */
-	    not(missing(tucaseID))
-    ;
-    by
-	    tucaseid
+		/* remove rows with missing primary key */
+		not(missing(tucaseID))
+	;
+	by
+		tucaseid
 	;
 run;
