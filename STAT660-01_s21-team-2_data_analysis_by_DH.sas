@@ -138,11 +138,11 @@ blank values, which can be removed prior to analyzing data.
 */ 
 proc means data=ehresp_2014_raw
 	maxdec=1
-    missing
-    n /* number of observations */
-    nmiss /* number of missing values */
-    min q1 median q3 max  /* five-number summary */
-    mean std /* two-number summary */
+	missing
+	n /* number of observations */
+	nmiss /* number of missing values */
+	min q1 median q3 max  /* five-number summary */
+	mean std /* two-number summary */
 run;
 title;
 
