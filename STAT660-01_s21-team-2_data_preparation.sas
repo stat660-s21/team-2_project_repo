@@ -215,3 +215,43 @@ proc sort
 	    tucaseid
 	;
 run;
+
+/* Data will be extracted and combined from two of the data files and combined
+into a large table. The columns needed from ehresp_2014_raw are "tucaseid",
+"ertpreat", "erseat", "euexercise", "erincome", "erbmi", and "euexercise". The
+columns neded from ehact_2014_raw are "tucaseid", "euedur24", and "tuactivity"
+
+After executing the following code. A new data table will be created which will
+then be passed to an additional step to check for duplicate entries and remove
+them if found. */
+
+data resp_actvity_2014_file_v1;
+    retain
+	    tucaseid
+		ertpreat
+		erseat
+		euexercise
+		erincome
+		erbmi
+		euexercise
+		euedur24
+		tuactivity
+	;
+	keep
+	    tucaseid
+		ertpreat
+		erseat
+		euexercise
+		erincome
+		erbmi
+		euexercise
+		euedur24
+		tuactivity
+	;
+	merge
+	    ehresp_2014_raw
+		ehact_2014_raw
+	by
+	    tucaseid
+    ;
+run;
