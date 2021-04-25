@@ -37,13 +37,13 @@ removed prior to analyzing data.
 
 title "Descriptive Statistics for ehact_2014";
 proc means
-        data=ehact_2014_raw(drop=tucaseid)
-        maxdec=1
-        missing
-        n /* number of observations */
-        nmiss /* number of missing values */
-        min q1 median q3 max  /* five-number summary */
-        mean std /* two-number summary */
+	data=ehact_2014_raw(drop=tucaseid)
+	maxdec=1
+	missing
+	n /* number of observations */
+	nmiss /* number of missing values */
+	min q1 median q3 max  /* five-number summary */
+	mean std /* two-number summary */
 		; 
 	var
 		EUEDUR24
@@ -137,12 +137,12 @@ blank values, which can be removed prior to analyzing data.
 
 */ 
 proc means data=ehresp_2014_raw
-        maxdec=1
-        missing
-        n /* number of observations */
-        nmiss /* number of missing values */
-        min q1 median q3 max  /* five-number summary */
-        mean std /* two-number summary */
+	maxdec=1
+    missing
+    n /* number of observations */
+    nmiss /* number of missing values */
+    min q1 median q3 max  /* five-number summary */
+    mean std /* two-number summary */
 run;
 title;
 
