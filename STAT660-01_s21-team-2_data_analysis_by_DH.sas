@@ -17,7 +17,6 @@ answer the research questions below
 */
 %include "&path.STAT660-01_s21-team-2_data_preparation.sas";
 
-
 *******************************************************************************;
 * Research Question 1 Analysis Starting Point;
 *******************************************************************************;
@@ -67,20 +66,18 @@ proc freq
     ;
     table
         EUEDUR24
-        / out= primary_eating_table
+        /out= primary_eating_table
     ;
 run;
 
 title "Inspect EUEDUR4 from ehresp_2014_raw";
 
 proc print data=primary_eating_table;
-format euedur24 miss.;
-label EUEDUR24="Second Eating Duration given activity";
+	format
+		euedur24 miss.;
+	label 
+		EUEDUR24="Second Eating Duration given activity";
 run;
-
-
-
-
 
 *******************************************************************************;
 * Research Question 2 Analysis Starting Point;
@@ -101,18 +98,23 @@ blank values, which can be removed prior to analyzing data.
 */ 
 
 proc freq data=ehresp_2014_raw nlevels;
-table ERTPREAT ERTSEAT;
-format ERTSEAT miss.;
+	table 
+		ERTPREAT ERTSEAT;
+	format 
+		ERTSEAT miss.;
 run;
 
 proc corr data=ehresp_2014_raw; 
-var ertpreat; 
-with ertseat; 
+	var 
+		ertpreat; 
+	with 
+		ertseat; 
 run; 
 
 title "Scatterplot of Primary vs Secondary Eating";
 proc gplot data=ehresp_2014_raw; 
-plot ertpreat*ertseat; 
+	plot 
+		ertpreat*ertseat; 
 run;
 
 *******************************************************************************;
@@ -134,9 +136,7 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.
 
 */ 
-
-proc means
-        data=ehresp_2014_raw
+proc means data=ehresp_2014_raw
         maxdec=1
         missing
         n /* number of observations */
@@ -147,7 +147,9 @@ run;
 title;
 
 proc sgplot data=ehresp_2014_raw; 
-	format euexercise miss.;
-	vbox ertseat/ category=euexercise; 
+	format 
+		euexercise miss.;
+	vbox 
+		ertseat/ category=euexercise; 
 run;
 
