@@ -1,5 +1,3 @@
-
-
 *******************************************************************************;
 **************** 80-character banner for column width reference ***************;
 * (set window width to banner width to calibrate line length to 80 characters *;
@@ -16,7 +14,6 @@ execute data-prep file, which will generate final analytic dataset used to
 answer the research questions below
 */
 %include "&path.STAT660-01_s21-team-2_data_preparation.sas";
-
 
 *******************************************************************************;
 * Research Question 1 Analysis Starting Point;
@@ -38,13 +35,13 @@ removed prior to analyzing data.
 
 title "Descriptive Statistics for ehact_2014";
 proc means
-        data=ehact_2014_raw(drop=tucaseid)
-        maxdec=1
-        missing
-        n /* number of observations */
-        nmiss /* number of missing values */
-        min q1 median q3 max  /* five-number summary */
-        mean std /* two-number summary */
+	data=ehact_2014_raw(drop=tucaseid)
+	maxdec=1
+	missing
+	n /* number of observations */
+	nmiss /* number of missing values */
+	min q1 median q3 max  /* five-number summary */
+	mean std /* two-number summary */
 		; 
 	var
 		EUEDUR24
@@ -55,6 +52,7 @@ proc means
 run;
 title;
 
+*Creating common format for values in 3 data sets;
 proc format; 
 	value miss 
 		-1,-2,-3= "invalid"
@@ -67,20 +65,18 @@ proc freq
     ;
     table
         EUEDUR24
-        / out= primary_eating_table
+        /out= primary_eating_table
     ;
 run;
 
 title "Inspect EUEDUR4 from ehresp_2014_raw";
 
 proc print data=primary_eating_table;
-format euedur24 miss.;
-label EUEDUR24="Second Eating Duration given activity";
+	format
+		euedur24 miss.;
+	label 
+		EUEDUR24="Second Eating Duration given activity";
 run;
-
-
-
-
 
 *******************************************************************************;
 * Research Question 2 Analysis Starting Point;
@@ -101,18 +97,23 @@ blank values, which can be removed prior to analyzing data.
 */ 
 
 proc freq data=ehresp_2014_raw nlevels;
-table ERTPREAT ERTSEAT;
-format ERTSEAT miss.;
+	table 
+		ERTPREAT ERTSEAT;
+	format 
+		ERTSEAT miss.;
 run;
 
 proc corr data=ehresp_2014_raw; 
-var ertpreat; 
-with ertseat; 
+	var 
+		ertpreat; 
+	with 
+		ertseat; 
 run; 
 
 title "Scatterplot of Primary vs Secondary Eating";
 proc gplot data=ehresp_2014_raw; 
-plot ertpreat*ertseat; 
+	plot 
+		ertpreat*ertseat; 
 run;
 
 *******************************************************************************;
@@ -134,20 +135,20 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.
 
 */ 
-
-proc means
-        data=ehresp_2014_raw
-        maxdec=1
-        missing
-        n /* number of observations */
-        nmiss /* number of missing values */
-        min q1 median q3 max  /* five-number summary */
-        mean std /* two-number summary */
+proc means data=ehresp_2014_raw
+	maxdec=1
+	missing
+	n /* number of observations */
+	nmiss /* number of missing values */
+	min q1 median q3 max  /* five-number summary */
+	mean std /* two-number summary */
 run;
 title;
 
 proc sgplot data=ehresp_2014_raw; 
-	format euexercise miss.;
-	vbox ertseat/ category=euexercise; 
+	format 
+		euexercise miss.;
+	vbox 
+		ertseat/ category=euexercise; 
 run;
 
