@@ -236,9 +236,10 @@ data resp_actvity_2014_file_v1;
 		euexercise
 		euedur24
 		tuactivity
+		tuactivity_n
 	;
 	keep
-	    tucaseid
+		tucaseid
 		ertpreat
 		erseat
 		euexercise
@@ -247,6 +248,7 @@ data resp_actvity_2014_file_v1;
 		euexercise
 		euedur24
 		tuactivity
+		tuactivity_n
 	;
 	merge
 	    ehresp_2014_raw
