@@ -59,15 +59,17 @@ proc format;
 		;
 run;
 
+title "Frequency Table of Secondary Eating";
 proc freq
         data=ehact_2014_raw
         noprint
     ;
     table
         EUEDUR24
-        /out= primary_eating_table
+        /out= secondary_eating_table
     ;
 run;
+title;
 
 title "Inspect EUEDUR4 from ehresp_2014_raw";
 
@@ -77,6 +79,39 @@ proc print data=primary_eating_table;
 	label 
 		EUEDUR24="Second Eating Duration given activity";
 run;
+
+*Sort the data by Patient ID and second eating activities;
+proc sort data=resp_actvity_2014_file_v1;
+	by
+		tucaseid
+		tuactivity_n 
+	;
+run;
+ 
+*Test for normality;
+proc univariate data=resp_actvity_2014_file_v1 normal;
+	by 
+		tuactivity_n
+	;
+	var 
+		euedur24
+	;
+	qqplot /normal (mu=est sigma=est);
+run;
+ 
+*Test for equality of variances and perform anova;
+proc glm data=resp_actvity_2014_file_v1;
+	class 
+		tuactivity_n
+	;
+	model 
+		euedur24= tuactivity_n;
+	means treatment 
+	/ hovtest=levene(type=abs) welch;
+	lsmeans treatment 
+	/pdiff adjust=tukey plot=meanplot(connect cl) lines;
+run;
+quit;
 
 *******************************************************************************;
 * Research Question 2 Analysis Starting Point;
@@ -96,14 +131,14 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.
 */ 
 
-proc freq data=ehresp_2014_raw nlevels;
+proc freq data=resp_actvity_2014_file_v1 nlevels;
 	table 
 		ERTPREAT ERTSEAT;
 	format 
 		ERTSEAT miss.;
 run;
 
-proc corr data=ehresp_2014_raw; 
+proc corr data=resp_actvity_2014_file_v1; 
 	var 
 		ertpreat; 
 	with 
@@ -111,7 +146,7 @@ proc corr data=ehresp_2014_raw;
 run; 
 
 title "Scatterplot of Primary vs Secondary Eating";
-proc gplot data=ehresp_2014_raw; 
+proc gplot data=resp_actvity_2014_file_v1; 
 	plot 
 		ertpreat*ertseat; 
 run;
@@ -135,7 +170,7 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.
 
 */ 
-proc means data=ehresp_2014_raw
+proc means data=resp_actvity_2014_file_v1
 	maxdec=1
 	missing
 	n /* number of observations */
@@ -145,7 +180,7 @@ proc means data=ehresp_2014_raw
 run;
 title;
 
-proc sgplot data=ehresp_2014_raw; 
+proc sgplot data=resp_actvity_2014_file_v1; 
 	format 
 		euexercise miss.;
 	vbox 
