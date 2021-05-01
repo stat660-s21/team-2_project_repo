@@ -144,7 +144,7 @@ a person from a family. This means thecolumns tucaseID and tuactivity_n are
 guaranteed to form a composite key.
 */
 proc sort
-    nodupkey
+	nodupkey
 	data=ehact_2014_raw
 	dupout=ehact_2014_raw_dups
 	out=ehact_2014_households
@@ -154,10 +154,10 @@ proc sort
 	not(missing(tucaseid))
 	and
 	not(missing(tuactivity_n))
-    ;
+	;
     by 
         tucaseid
-	    tuactivity_n
+		tuactivity_n
 	;
 run;
 
@@ -172,20 +172,20 @@ the United states. This means the columns tucaseid and tulineno in ehresp are
 guaranteed to form a primary key.
 */
 proc sort
-        nodupkey
-		data=ehresp_2014_raw
-		dupout=ehresp_2014_raw_dups
-		out=ehresp_2014_households
-    ;
+	nodupkey
+	data=ehresp_2014_raw
+	dupout=ehresp_2014_raw_dups
+	out=ehresp_2014_households
+	;
 	where
 	    /* remove rows with missing composite key components */
-	    not(missing(tucaseid))
+		not(missing(tucaseid))
 		and
 		/*remove rows for missing family person id number */
 		not(missing(tulineno)
-    ;
+	;
     by
-	    tucaseid
+		tucaseid
 		tulineno
 	;
 run;
@@ -202,17 +202,17 @@ correspond to our experiment unit of interest, which are individuals
 in unique U.S. families.
 */
 proc sort
-        nodupkey
-		data=ehwgts_2014_raw
-		dupout=ehwgts_2014_raw_dups
-		out=ehwgts_2014
-    ;
+	nodupkey
+	data=ehwgts_2014_raw
+	dupout=ehwgts_2014_raw_dups
+	out=ehwgts_2014
+	;
 	where
 	    /* remove rows with missing primary key */
-	    not(missing(tucaseID))
-    ;
+		not(missing(tucaseID))
+	;
     by
-	    tucaseid
+		tucaseid
 	;
 run;
 
@@ -226,8 +226,8 @@ then be passed to an additional step to check for duplicate entries and remove
 them if found. */
 
 data resp_actvity_2014_file_v1;
-    retain
-	    tucaseid
+	retain
+		tucaseid
 		ertpreat
 		erseat
 		euexercise
@@ -235,7 +235,6 @@ data resp_actvity_2014_file_v1;
 		erbmi
 		euexercise
 		euedur24
-		tuactivity
 		tuactivity_n
 	;
 	keep
@@ -247,13 +246,66 @@ data resp_actvity_2014_file_v1;
 		erbmi
 		euexercise
 		euedur24
-		tuactivity
 		tuactivity_n
 	;
 	merge
-	    ehresp_2014_raw
+		ehresp_2014_raw
 		ehact_2014_raw
+	;
 	by
-	    tucaseid
-    ;
+		tucaseid
+	;
 run;
+
+
+data resp_actvity_2014_file_v2(	
+	drop=
+		tucaseid_int
+	);
+	retain
+		tucaseid
+		tucaseid_n
+		ertpreat
+		erseat
+		euexercise
+		erincome
+		erbmi
+		euexercise
+		euedur24 
+	;
+	set resp_actvity_2014_file_v1(
+		rename=(
+			tucaseid=tucaseid_int
+			)
+		);
+	tucaseid=put(tucaseid_int, z14.);
+run;
+
+proc print 
+	data= resp_actvity_2014_file_v2 (obs=15); 
+run;
+
+/*Prior to running the proc sort, we already expect duplicates in tucaseid since 
+the ehact_2014_raw was in long format instead of wide format. Therefore when 
+activities and respondents file are merged, the final dataset also has long format 
+with repeated tucaseid for each tucaseid_n activity listed in ehact_2014_raw.*/
+
+proc sort
+	nodupkey
+	data=resp_actvity_2014_file_v2
+	dupout=resp_actvity_2014_file_v2_dups
+	out=resp_actvity_2014_file_v3
+	;
+	where
+	    /* remove rows with missing primary key */
+		not(missing(tucaseID))
+	;
+    by
+		tucaseid
+	;
+run;
+
+proc print 
+	data= resp_actvity_2014_file_v3 (obs=15); 
+run;
+
