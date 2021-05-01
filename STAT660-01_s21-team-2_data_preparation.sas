@@ -87,7 +87,6 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehwgts_2
 ;
 %let inputDataset3Type = csv;
 
-
 /* load raw datasets over the wire, if they doesn't already exist */
 %macro loadDataIfNotAlreadyAvailable(dsn,url,filetype);
     %put &=dsn;
@@ -228,6 +227,7 @@ them if found. */
 data resp_actvity_2014_file_v1;
 	retain
 		tucaseid
+		tuactivity_n
 		ertpreat
 		erseat
 		euexercise
@@ -235,10 +235,10 @@ data resp_actvity_2014_file_v1;
 		erbmi
 		euexercise
 		euedur24
-		tuactivity_n
 	;
 	keep
 		tucaseid
+		tuactivity_n
 		ertpreat
 		erseat
 		euexercise
@@ -246,7 +246,6 @@ data resp_actvity_2014_file_v1;
 		erbmi
 		euexercise
 		euedur24
-		tuactivity_n
 	;
 	merge
 		ehresp_2014_raw
