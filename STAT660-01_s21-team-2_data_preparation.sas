@@ -224,7 +224,7 @@ After executing the following code. A new data table will be created which will
 then be passed to an additional step to check for duplicate entries and remove
 them if found. */
 
-data resp_actvity_2014_file_v1;
+data resp_activity_2014_file_v1;
 	retain
 		tucaseid
 		tuactivity_n
@@ -257,7 +257,7 @@ data resp_actvity_2014_file_v1;
 run;
 
 
-data resp_actvity_2014_file_v2(	
+data resp_activity_2014_file_v2(	
 	drop=
 		tucaseid_int
 	);
@@ -272,7 +272,7 @@ data resp_actvity_2014_file_v2(
 		euexercise
 		euedur24 
 	;
-	set resp_actvity_2014_file_v1(
+	set resp_activity_2014_file_v1(
 		rename=(
 			tucaseid=tucaseid_int
 			)
@@ -281,7 +281,7 @@ data resp_actvity_2014_file_v2(
 run;
 
 proc print 
-	data= resp_actvity_2014_file_v2 (obs=15); 
+	data= resp_activity_2014_file_v2 (obs=15); 
 run;
 
 /*Prior to running the proc sort, we already expect duplicates in tucaseid since 
@@ -291,9 +291,9 @@ with repeated tucaseid for each tucaseid_n activity listed in ehact_2014_raw.*/
 
 proc sort
 	nodupkey
-	data=resp_actvity_2014_file_v2
-	dupout=resp_actvity_2014_file_v2_dups
-	out=resp_actvity_2014_file_v3
+	data=resp_activity_2014_file_v2
+	dupout=resp_activity_2014_file_v2_dups
+	out=resp_activity_2014_file_v3
 	;
 	where
 	    /* remove rows with missing primary key */
@@ -305,6 +305,6 @@ proc sort
 run;
 
 proc print 
-	data= resp_actvity_2014_file_v3 (obs=15); 
+	data= resp_activity_2014_file_v3 (obs=15); 
 run;
 
