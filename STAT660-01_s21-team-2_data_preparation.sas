@@ -229,7 +229,7 @@ data resp_actvity_2014_file_v1;
 		tucaseid
 		tuactivity_n
 		ertpreat
-		erseat
+		ertseat
 		euexercise
 		erincome
 		erbmi
@@ -240,7 +240,7 @@ data resp_actvity_2014_file_v1;
 		tucaseid
 		tuactivity_n
 		ertpreat
-		erseat
+		ertseat
 		euexercise
 		erincome
 		erbmi
@@ -265,7 +265,7 @@ data resp_actvity_2014_file_v2(
 		tucaseid
 		tucaseid_n
 		ertpreat
-		erseat
+		ertseat
 		euexercise
 		erincome
 		erbmi
