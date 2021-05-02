@@ -50,8 +50,40 @@ proc sort data=resp_activity_2014_file_v2 out=sorted;
 	; 
 run;
 
-proc print data=sorted(obs=150);run;
-proc univariate data=resp_activity_2014_file_v3 normal;
+
+proc contents data=sorted; 
+run;
+data sorted; 
+	set sorted; 
+	if tuactivity_n< 100 then tuactivity=100;
+	else tuactivity=tuactivity_n;
+run;
+proc freq data=sorted order=freq; 
+	table tuactivity_n/out=temp noprint; 
+run;
+*proc print data=temp;run;
+data temp ; 
+	set temp; 
+		if Count <100 then tuactivity='other'; 
+		else tuactivity=tuactivity_n;
+	keep tuactivity_n tuactivity;
+run;
+
+proc print data=temp;run;
+
+
+proc print data=sorted(obs=200);run;
+
+data a; 
+	set sorted; 
+	if tuactivity_n in (1,24-56) then tuactivity=100;
+	else tuactivity=tuactivity_n;
+run;
+
+proc print data=a;
+run;
+
+proc univariate data=sorted normal;
 	by 
 		tuactivity_n
 	;
@@ -60,6 +92,7 @@ proc univariate data=resp_activity_2014_file_v3 normal;
 	;
 	qqplot /normal (mu=est sigma=est);
 run;
+
 
  
 title4 "Test for equality of variances and perform anova";
