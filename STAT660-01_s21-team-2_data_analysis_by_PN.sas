@@ -20,11 +20,8 @@ answer the research questions below
 * Research Question 1 Analysis Starting Point;
 *******************************************************************************;
 /*
-Question 1 of 3: Do income levels affect how many times a person eats per day? 
 
-Rationale: Households with higher incomes may be able to afford gym memberships 
-perhaps explaining lower body weights. I would like to explore whether or not 
-higher incomes lead to more cases of eating. 
+Rationale: 
 
 Note: This compares the column ERINCOME in ehresp_2014.csv with
 the highest n of the same ID in ehact_2014.csv. ERIncome is a categorical
@@ -41,31 +38,17 @@ Limitations: Values in ERINCOME not integers (1,5) should be excluded since
 these contain non-valid data.
 */
 
-/* Output frequencies of ERINCOME to a dataset for manual inspection */
-proc freq
-    data = ehresp_2014_households
-	noprint
+/* Create formats to bin values into income groups based on categorical codes*/
+proc sort
+    data = resp_actvity_2014_file_v1
+	out=resp_activity_2014_file_v1_sorted
 	;
-	table
-	    ERINCOME
-		/ out = TUACTIVITY_frequencies
+    by ascending tucaseid
 	;
 run;
-
-/* use manual inspection to create bins to study missing-value distribution */
-proc format;
-    value $ERINCOME_bins
-	    "1", ="Income > 185% of poverty threshold"
-		"2"="Income < = 185% of poverty threshold"
-		"3"="130% of poverty threshold < Income < 185% of poverty threshold"
-		"4"="Income > 130% of poverty threshold"
-		"5"="Income <= 130% of poverty threshold"
-		other="Invalid entry"
-	;
-run;
-
-/* inspect study missing-value distribution */
-title "Inspect ERINCOME from ehresp_2014";
+title
+"Number of Households in Each Income Group"
+;
 proc freq
     table
 	    ERINCOME
@@ -77,32 +60,31 @@ proc freq
 	label ERINCOME="Counts of Households INCOME Category"
 	;
 run;
-title;
 
-/* Output frequencies of TUACTIVITY to a dataset for manual inspection */
+
+/* Output levels per household id on eating activites */
 proc freq
-    data = ehact_2014_raw
+    data = resp_actvity_2014_file_v1
 	noprint
 	;
 	table
 	    TUACTIVITY
 		/ out = TUACTIVITY_frequencies
 	;
-	label
-	    
+	label	    
 run;
 /* use manual inspection to create bins to study missing-value distribution */
 proc format;
     value $TUACTIVITY
 	    "0"="Potentially Missing"
-		other="Valid Numberical Value"
+		other="Valid Numerical Value"
 	;
 run;
 
 /* Inspect missing-value distirbution */
 title "Inspect TUACTIVITY from ehact_2014";
 proc freq
-        data=ehact_2014_households
+        data=resp_actvity_2014_file_v1
 	;
 	table
 	    TUACTIVITY
@@ -136,25 +118,17 @@ of tuactivity_n for the same ID in ehact_2014.csv.
 Limitations: Values of bmi are only properly defined if the individual has
 valid entries for height and weight that is EUHGT > 0 and EUWGT > 0.
 */
-title "Inspect ERBMI from ehresp_2014.csv";
-proc means
-    data=ehresp_2014_households
-    maxdec=1
-    missing
-    n /* number of observations */
-    nmiss /* number of missing values */
-    min q1 median q3 max /* five-number summary */
-    mean std /* two-number summary */
-;
-var
-    erbmi
-    ;
-    label
-    erbmi=" "
+title "Respondent BMI groups from Underweight to Obese";
+proc format;
+    value $erbmi
+	low-<18.5="Underweight"
+	18.5-<24.9="Normal"
+    25-<29.9="Overweight"
+	30-high="Obese"
 	;
 run;
-title;
-
+title "Quartile-based correlation analysis for secondary eating rates"
+;
 
 *******************************************************************************;
 * Research Question 3 Analysis Starting Point;
@@ -180,7 +154,7 @@ exercise besides work 2 - no exercise.
 
 /* Output frequencies of EUEXERCISE to a dataset for manual inspection */
 proc freq
-    data = ehresp_2014_households
+    data = eresp_actvity_2014_file_v1
 	noprint
 	;
 	table
@@ -192,7 +166,7 @@ run;
 /* use manual inspection to create bins to study missing-value distribution */
 proc format;
     value $EUEXERCISE_bins
-	    "1", ="Exercise in the Last 7 Days Besides Work"
+	    "1"="Exercise in the Last 7 Days Besides Work"
 		"2"="No Exercise in the Last 7 Days Besides Work"
 		other="Invalid Numerical Value"
 	;
