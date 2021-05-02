@@ -25,32 +25,13 @@ with secondary eating?
 Rationale: Knowing which type(s) of activities increase(s) the likelihood of 
 secondary eating could help devise preventive strategies.
 		   
-Note: Perform onw-way ANOVA with EUEDUR24 as the response variable and 
+Note: Perform one-way ANOVA with EUEDUR24 as the response variable and 
 TUACTIVITU_N as factors.
 
 Limitations: Many entries in EUEDUR24 are coded -1 which seems to be illogical. 
 However, those entries indicate "unanswered" or missing values, which can be 
 removed prior to analyzing data. 
 */
-
-title "Descriptive Statistics for ehact_2014";
-proc means
-	data=ehact_2014_raw(drop=tucaseid)
-	maxdec=1
-	missing
-	n /* number of observations */
-	nmiss /* number of missing values */
-	min q1 median q3 max  /* five-number summary */
-	mean std /* two-number summary */
-		; 
-	var
-		EUEDUR24
-	; 
-	label
-		EUEDUR24="Second Eating Duration given activity"
-	;
-run;
-title;
 
 *Creating common format for values in 3 data sets;
 proc format; 
@@ -59,37 +40,10 @@ proc format;
 		;
 run;
 
-title "Frequency Table of Secondary Eating";
-proc freq
-        data=ehact_2014_raw
-        noprint
-    ;
-    table
-        EUEDUR24
-        /out= secondary_eating_table
-    ;
-run;
-title;
 
-title "Inspect EUEDUR4 from ehresp_2014_raw";
-
-proc print data=primary_eating_table;
-	format
-		euedur24 miss.;
-	label 
-		EUEDUR24="Second Eating Duration given activity";
-run;
-
-*Sort the data by Patient ID and second eating activities;
-proc sort data=resp_actvity_2014_file_v1;
-	by
-		tucaseid
-		tuactivity_n 
-	;
-run;
  
 *Test for normality;
-proc univariate data=resp_actvity_2014_file_v1 normal;
+proc univariate data=resp_actvity_2014_file_v3 normal;
 	by 
 		tuactivity_n
 	;
@@ -100,7 +54,7 @@ proc univariate data=resp_actvity_2014_file_v1 normal;
 run;
  
 *Test for equality of variances and perform anova;
-proc glm data=resp_actvity_2014_file_v1;
+proc glm data=resp_actvity_2014_file_v3;
 	class 
 		tuactivity_n
 	;
@@ -131,14 +85,14 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.
 */ 
 
-proc freq data=resp_actvity_2014_file_v1 nlevels;
+proc freq data=resp_actvity_2014_file_v3 nlevels;
 	table 
 		ERTPREAT ERTSEAT;
 	format 
 		ERTSEAT miss.;
 run;
 
-proc corr data=resp_actvity_2014_file_v1; 
+proc corr data=resp_actvity_2014_file_v3; 
 	var 
 		ertpreat; 
 	with 
@@ -146,7 +100,7 @@ proc corr data=resp_actvity_2014_file_v1;
 run; 
 
 title "Scatterplot of Primary vs Secondary Eating";
-proc gplot data=resp_actvity_2014_file_v1; 
+proc gplot data=resp_actvity_2014_file_v3; 
 	plot 
 		ertpreat*ertseat; 
 run;
@@ -170,20 +124,19 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.
 
 */ 
-proc means data=resp_actvity_2014_file_v1
-	maxdec=1
-	missing
-	n /* number of observations */
-	nmiss /* number of missing values */
-	min q1 median q3 max  /* five-number summary */
-	mean std /* two-number summary */
+proc freq data=resp_activity_2014_file_v3; 
+	where euexercise NOTIN (-1,-2,-3) and ertseat NOTIN (-1,-2,-3);
+	table euexercise*ertseat/ nocum norow nocol nopercent;
 run;
+	
 title;
 
-proc sgplot data=resp_actvity_2014_file_v1; 
+proc sgplot data=resp_activity_2014_file_v3; 
 	format 
 		euexercise miss.;
 	vbox 
 		ertseat/ category=euexercise; 
 run;
 
+
+proc contents data=resp_activity_2014_file_v3; run;
