@@ -18,20 +18,20 @@ answer the research questions below
 *******************************************************************************;
 * Research Question 1 Analysis Starting Point;
 *******************************************************************************;
-/*
-Question 1 of 3: What type(s) of activities are more likely to be associated 
-with secondary eating?
 
-Rationale: Knowing which type(s) of activities increase(s) the likelihood of 
-secondary eating could help devise preventive strategies.
+title1" What type(s) of activities are more likely to be associated 
+with secondary eating?";
+
+title2 "Rationale: Knowing which type(s) of activities increase(s) the likelihood of 
+secondary eating could help devise preventive strategies.";
 		   
-Note: Perform one-way ANOVA with EUEDUR24 as the response variable and 
-TUACTIVITU_N as factors.
+footnote1" Perform one-way ANOVA with EUEDUR24 as the response variable and 
+TUACTIVITU_N as factors"
 
-Limitations: Many entries in EUEDUR24 are coded -1 which seems to be illogical. 
+footnote2" Many entries in EUEDUR24 are coded -1 which seems to be illogical. 
 However, those entries indicate "unanswered" or missing values, which can be 
-removed prior to analyzing data. 
-*/
+removed prior to analyzing data"
+
 
 *Creating common format for values in 3 data sets;
 proc format; 
@@ -42,7 +42,7 @@ run;
 
 
  
-*Test for normality;
+title3 "Test for normality";
 proc univariate data=resp_actvity_2014_file_v3 normal;
 	by 
 		tuactivity_n
@@ -52,8 +52,9 @@ proc univariate data=resp_actvity_2014_file_v3 normal;
 	;
 	qqplot /normal (mu=est sigma=est);
 run;
+
  
-*Test for equality of variances and perform anova;
+title4 "Test for equality of variances and perform anova";
 proc glm data=resp_actvity_2014_file_v3;
 	class 
 		tuactivity_n
@@ -66,25 +67,27 @@ proc glm data=resp_actvity_2014_file_v3;
 	/pdiff adjust=tukey plot=meanplot(connect cl) lines;
 run;
 quit;
+title;
+footnote;
 
 *******************************************************************************;
 * Research Question 2 Analysis Starting Point;
 *******************************************************************************;
-/*
-Question 2 of 3: Is there a relationship between primary and seconday eating 
-among households?
+
+title1" Is there a relationship between primary and seconday eating 
+among households?";
 				 
-Rationale: By answering this question helps generalize common eating habits 
-of people.
+title2"Rationale: By answering this question helps generalize common eating habits 
+of people.";
 
-Note: Find the correlation between the columns ERTPREAT and ERTSEAT of 
-ehresp_2014_raw. 
+footnote1" Find the correlation between the columns ERTPREAT and ERTSEAT of 
+ehresp_2014_raw";
 
-Limitations: Several entries in ERTPREAT and ERTSEAT are coded as negative values
+footnote2" Several entries in ERTPREAT and ERTSEAT are coded as negative values
 which seems to be illogical. However, those entries indicate "unanswered" or 
-blank values, which can be removed prior to analyzing data.
-*/ 
+blank values, which can be removed prior to analyzing data.";
 
+title3 "Frequency tables of primary and secondary eating";
 proc freq data=resp_actvity_2014_file_v3 nlevels;
 	table 
 		ERTPREAT ERTSEAT;
