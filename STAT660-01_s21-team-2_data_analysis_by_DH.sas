@@ -30,7 +30,7 @@ TUACTIVITU_N as factors"
 
 footnote2" Many entries in EUEDUR24 are coded -1 which seems to be illogical. 
 However, those entries indicate "unanswered" or missing values, which can be 
-removed prior to analyzing data"
+removed prior to analyzing data";
 
 
 *Creating common format for values in 3 data sets;
@@ -40,10 +40,18 @@ proc format;
 		;
 run;
 
-
+proc print data=resp_activity_2014_file_v3;run;
  
 title3 "Test for normality";
-proc univariate data=resp_actvity_2014_file_v3 normal;
+proc sort data=resp_activity_2014_file_v2 out=sorted; 
+	where euedur24 ge 0;
+	by 
+		tuactivity_n
+	; 
+run;
+
+proc print data=sorted(obs=150);run;
+proc univariate data=resp_activity_2014_file_v3 normal;
 	by 
 		tuactivity_n
 	;
