@@ -307,4 +307,3 @@ run;
 proc print 
 	data= resp_activity_2014_file_v3 (obs=15); 
 run;
-
