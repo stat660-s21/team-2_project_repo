@@ -50,10 +50,11 @@ proc sort data=resp_activity_2014_file_v2 out=sorted;
 	; 
 run;
 
-
-proc contents data=sorted; 
+proc freq data=sorted; 
+	table tuactivity_n; 
 run;
-data sorted; 
+
+/*data sorted; 
 	set sorted; 
 	if tuactivity_n< 100 then tuactivity=100;
 	else tuactivity=tuactivity_n;
@@ -69,23 +70,31 @@ data temp ;
 	keep tuactivity_n tuactivity;
 run;
 
-proc print data=temp;run;
+proc print data=temp;run;*/
 
 
 proc print data=sorted(obs=200);run;
 
 data a; 
 	set sorted; 
-	if tuactivity_n in (1,24-56) then tuactivity=100;
+	if tuactivity_n in (1,24:56) then tuactivity=100;
 	else tuactivity=tuactivity_n;
 run;
 
-proc print data=a;
+data b; 
+	set resp_activity_2014_file_v2; 
+	where euedur24 >0; 
+	if tuactivity_n in (1,24:56) then tuactivity=100;
+	else tuactivity=tuactivity_n;
 run;
 
-proc univariate data=sorted normal;
+proc sort data=b out=resp_activity_sorted; 
+	by tuactivity; 
+run;
+
+proc univariate data=resp_activity_sorted normal;
 	by 
-		tuactivity_n
+		tuactivity
 	;
 	var 
 		euedur24
@@ -96,12 +105,17 @@ run;
 
  
 title4 "Test for equality of variances and perform anova";
-proc glm data=resp_actvity_2014_file_v3;
+*Perform the Kruskal-Wallis Test;
+proc npar1way data=resp_activity_sorted wilcoxon dscf;
+class tuactivity;
+var euedur24;
+run;
+proc glm data=resp_activity_sorted;
 	class 
-		tuactivity_n
+		tuactivity
 	;
 	model 
-		euedur24= tuactivity_n;
+		euedur24= tuactivity;
 	means treatment 
 	/ hovtest=levene(type=abs) welch;
 	lsmeans treatment 
@@ -129,14 +143,14 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.";
 
 title3 "Frequency tables of primary and secondary eating";
-proc freq data=resp_actvity_2014_file_v3 nlevels;
+proc freq data=resp_activity_2014_file_v2 nlevels;
 	table 
 		ERTPREAT ERTSEAT;
 	format 
 		ERTSEAT miss.;
 run;
 
-proc corr data=resp_actvity_2014_file_v3; 
+proc corr data=resp_activity_2014_file_v2; 
 	var 
 		ertpreat; 
 	with 
@@ -168,7 +182,7 @@ which seems to be illogical. However, those entries indicate "unanswered" or
 blank values, which can be removed prior to analyzing data.
 
 */ 
-proc freq data=resp_activity_2014_file_v3; 
+/*proc freq data=resp_activity_2014_file_v3; 
 	where euexercise NOTIN (-1,-2,-3) and ertseat NOTIN (-1,-2,-3);
 	table euexercise*ertseat/ nocum norow nocol nopercent;
 run;
@@ -180,7 +194,14 @@ proc sgplot data=resp_activity_2014_file_v3;
 		euexercise miss.;
 	vbox 
 		ertseat/ category=euexercise; 
+run;*/
+
+data exercise; 
+	set resp_activity_2014_file_v2; 
+	where euexercise > 0 and ertseat >0;
 run;
-
-
-proc contents data=resp_activity_2014_file_v3; run;
+proc NPAR1WAY data=exercise wilcoxon; 
+	class euexercise; 
+	var ertseat; 
+	exact wilcoxon; 
+run;
