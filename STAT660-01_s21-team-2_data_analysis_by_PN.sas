@@ -20,11 +20,6 @@ answer the research questions below
 * Research Question 1 Analysis Starting Point;
 *******************************************************************************;
 /*
-Question 1 of 3: Do income levels affect how many times a person eats per day? 
-
-Rationale: Households with higher incomes may be able to afford gym memberships 
-perhaps explaining lower body weights. I would like to explore whether or not 
-higher incomes lead to more cases of eating. 
 
 Note: This compares the column ERINCOME in ehresp_2014.csv with
 the highest n of the same ID in ehact_2014.csv. ERIncome is a categorical
@@ -41,43 +36,28 @@ Limitations: Values in ERINCOME not integers (1,5) should be excluded since
 these contain non-valid data.
 */
 
-/* Output frequencies of ERINCOME to a dataset for manual inspection */
+
+title1 justify=left
+'Question 1 of 3: Do income levels affect how many times a person eats per day?'
+;
+
+title2 justify=left
+'Rationale: Households with higher incomes may be able to afford gym memberships 
+ perhaps explaining lower body weights. Or maybe higher incomes leads to eating more often. 
+ Maybe government programs will be needed to increase availability of food.'
+;
+
+/* Need to remove invalid entries from large data set*/
+
 proc freq
     data = resp_activity_2014_file_v3
-	noprint
-	;
+	where ERINCOME IN(1 2 3 4 5);
 	table
 	    ERINCOME
-		/ out = TUACTIVITY_frequencies
+		/ out = INCOME_FREQUENCIES
 	;
 run;
 
-/* use manual inspection to create bins to study missing-value distribution */
-proc format;
-    value $ERINCOME_bins
-	    "1", ="Income > 185% of poverty threshold"
-		"2"="Income < = 185% of poverty threshold"
-		"3"="130% of poverty threshold < Income < 185% of poverty threshold"
-		"4"="Income > 130% of poverty threshold"
-		"5"="Income <= 130% of poverty threshold"
-		other="Invalid entry"
-	;
-run;
-
-/* inspect study missing-value distribution */
-title "Inspect ERINCOME from ehresp_2014";
-proc freq
-    table
-	    ERINCOME
-		/ nocum
-	;
-	format
-	    ERINCOME $ERINCOME_bins.
-	;
-	label ERINCOME="Counts of Households INCOME Category"
-	;
-run;
-title;
 
 /* Output frequencies of TUACTIVITY to a dataset for manual inspection */
 proc freq
@@ -85,11 +65,9 @@ proc freq
 	noprint
 	;
 	table
-	    TUACTIVITY
+	    tuactivity_n
 		/ out = TUACTIVITY_frequencies
-	;
-	label
-	    
+	;    
 run;
 /* use manual inspection to create bins to study missing-value distribution */
 proc format;
