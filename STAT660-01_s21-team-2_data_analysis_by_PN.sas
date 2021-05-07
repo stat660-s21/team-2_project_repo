@@ -21,8 +21,6 @@ answer the research questions below
 *******************************************************************************;
 /*
 
-Rationale: 
-
 Note: This compares the column ERINCOME in ehresp_2014.csv with
 the highest n of the same ID in ehact_2014.csv. ERIncome is a categorical
 with 5 levels corresponding to how much a household is above the baseline level
@@ -35,86 +33,74 @@ for poverty in the United States so proc freq will be used often.
 5 - Income <= 130% of poverty threshold
 
 Limitations: Values in ERINCOME not integers (1,5) should be excluded since 
-these contain non-valid data.
+these contain non-valid data. Some individuals did not disclose the frequency
+of how many times they ate food in a day.
+
+Methodology: Use proc sort to create a temporary dataset in descending
+order and then subsetting that set to obtain the higest value of each unique
+id group. Then create a scatter plot to see any patterns in the 5 categorical
+groups.
+
+Followup Steps: Visual inspection of a scatterplot of categorical groups is
+not rigorous, even though it can be a helpful initial step. An ANOVA or
+categorical data analysis may yield further insights.
 */
 
-/* Create formats to bin values into income groups based on categorical codes*/
-proc sort
-    data = resp_actvity_2014_file_v1
-	out=resp_activity_2014_file_v1_sorted
-<<<<<<< Updated upstream
-	;
-    by ascending tucaseid
-	;
-=======
-	;
-    by ascending tucaseid
-	;
->>>>>>> Stashed changes
-run;
-title
-"Number of Households in Each Income Group"
-;
-proc freq
-    table
-	    ERINCOME
-		/ nocum
-	;
-	format
-	    ERINCOME $ERINCOME_bins.
-	;
-	label ERINCOME="Counts of Households INCOME Category"
-	;
-run;
+/* Creating a format for ERINCOME so we can tell how much over threshold
+a person's income is. */
 
-
-/* Output levels per household id on eating activites */
-proc freq
-    data = resp_actvity_2014_file_v1
-	noprint
-	;
-	table
-	    TUACTIVITY
-		/ out = TUACTIVITY_frequencies
-	;
-	label	    
-run;
-/* use manual inspection to create bins to study missing-value distribution */
 proc format;
-    value $TUACTIVITY
-	    "0"="Potentially Missing"
-		other="Valid Numerical Value"
-	;
+    value erincome_fmt    
+        1 = "185%"
+        2 = "< = 185%"
+	    3 = "130% < Income < 185%"
+	    4 = "Income > 130%"
+        5 = "Income <= 130%";
 run;
 
-/* Inspect missing-value distirbution */
-title "Inspect TUACTIVITY from ehact_2014";
-proc freq
-        data=resp_actvity_2014_file_v1
-	;
-	table
-	    TUACTIVITY
-		/ nocum
-	;
-	format
-	    TUACTIVITY $TUACTIVITY_bins.
-	;
-	label
-	    TUACTIVITY="Count of households with second eating counts"
-	;
+/* I will now sort my data set in descending order so I can get the largest
+value for tuactivity_n and extract the first row per every unique tucaseid so
+I have a new data set. */
+
+proc sort data= resp_activity_2014_file_v2
+    out = income_lvl_freq_eating_v1;
+	where tuactivity_n is not missing and erincome in (1 2 3 4 5);
+    by tucaseid descending tuactivity_n;
 run;
-title;
+
+data income_lvl_freq_eating_v2;
+    set income_lvl_freq_eating_v1;
+    by tucaseid;
+
+	if first.tucaseid then output;
+run;
 
 title1 justify=left
-'Question 1 of 3:Question 1 of 3: Do income levels affect how many times 
-a person eats per day?'
+'Question 1 of 3: Do income levels affect how many times a person eats per day?'
 ;
+
 title2 justify=left
-'Households with higher incomes may be able to afford gym memberships 
-perhaps explaining lower body weights. I would like to explore whether or not 
-higher incomes lead to more cases of eating.'
-; 
-    
+'Rationale: Households with higher incomes may be able to eat out more often or maybe lower incomes leads 
+ to eating more often. Maybe government programs will be needed to increase availability of food.'
+;
+
+footnote1 justify=left
+"Of the five income groups with 1 being the highest threshold and 5 being the lowest, there does
+ not look to be a pattern in terms of eating habits when everyone has an income above the poverty level."
+;
+
+/* Scatter plot showing groupings of tuactivity and income levels. */	
+proc sgscatter data = income_lvl_freq_eating_v2;
+	where ERINCOME IN(1 2 3 4 5);
+	format erincome erincome_fmt.;
+	PLOT TUACTIVITY_N*ERINCOME;
+run;
+
+/* clear titles/footnotes */
+title;
+footnote;
+
+
 *******************************************************************************;
 * Research Question 2 Analysis Starting Point;
 *******************************************************************************;
@@ -123,31 +109,83 @@ higher incomes lead to more cases of eating.'
 Note: This compares the column BMI ERBMI of ehresp_2014 with the highest value 
 of tuactivity_n for the same ID in ehact_2014.csv.
 
-Limitations: Values of bmi are only properly defined if the individual has
-valid entries for height and weight that is EUHGT > 0 and EUWGT > 0.
+Limitations: Values of bmi are only properly defined if they are > 0.
+
+Methodology: Use proc sort to create a temporary dataset in descending
+order and then subsetting that set to obtain the higest value of each unique
+id group. Body Mass Index (BMI) is binned into 4 categroies. Then create a 
+scatter plot to see any patterns in the 4 categorical groups.
+
+Followup Steps: Visual inspection of a scatterplot of categorical groups is
+not rigorous, even though it can be a helpful initial step. An ANOVA or
+categorical data analysis may yield further insights.
 */
-title "Respondent BMI groups from Underweight to Obese";
+
+/* Creating a format to group BMI into groups
+Underweight - < 18.5
+Normal - 18.5<bmi<24.9
+Overweight - 25<bmi<29.9
+Obese - >30
+*/
+
 proc format;
-    value $erbmi
-	low-<18.5="Underweight"
-	18.5-<24.9="Normal"
-    25-<29.9="Overweight"
-	30-high="Obese"
-	;
+    value erbmi_group 1 = "Underweight"
+                      2 = "Normal"
+				      3 = "Overweight"
+				      4 = "Obese";
 run;
-title "Quartile-based correlation analysis for secondary eating rates"
+
+/* Creating a data set omitting invalid bmi values and sorting in descending
+order tuactivity_n and selecting only first row of each unique tucaseid to have
+data set with greatest number of tuactivity (eating frequency) */
+
+proc sort data= resp_activity_2014_file_v2
+    out = bmi_freq_eating_v1;
+	where tuactivity_n is not missing and erbmi > 0;
+    by tucaseid descending tuactivity_n;
+run;
+
+/* Assigning categorical code 1-4 for use with previously declared format with
+conditional statements based on erbmi ranges. */
+
+data bmi_freq_eating_v2;
+    set bmi_freq_eating_v1;
+	if erbmi < 18.5 THEN erbmi = 1;
+	if 18.5<=erbmi<24.9 THEN erbmi = 2;
+	if 24.9<=erbmi<29.9 THEN erbmi = 3;
+	if erbmi >= 29.9 THEN erbmi = 4;
+    by tucaseid;
+	if first.tucaseid then output;
+run;
+
+title1 justify=left
+'Question 2 of 3: Is there a relationship between BMI ERBMI column in 
+ehresp_2014.csv (body mass index) relationship between primary and secondary 
+eating ehact_2014.csv?'
 ;
-<<<<<<< Updated upstream
-=======
-title1 justify=left 'Question 2 of 3: Is there a relationship between BMI 
-ERBMI column in ehresp_2014.csv (body mass index) relationship between primary 
-and secondary eating ehact_2014.csv?'
+
+title2 justify=left
+'Rationale: I have heard of conflicting reports between eating smaller meals, 
+ one large meal, or even fasting leading to lower BMI. Is there an observable 
+ pattern or relationship?'
 ;
-title2 justify=left 'Rationale: I have heard of conflicting reports between 
-eating smaller meals, one large meal, or even fasting leading to lower BMI. 
-Is there an observable pattern or relationship?'
+
+footnote1 justify=left
+"It looks like people with underweight BMI eat less often than those with higher BMI. There
+ does not seem to be a big difference between the number of eating activities between those
+ with normal, overweight, and obese BMI. Maybe exercise of lack of it is a bigger factor."
 ;
->>>>>>> Stashed changes
+
+/*scatter plot with bmi formating*/
+proc sgscatter data = bmi_freq_eating_v2;
+    format erbmi erbmi_group.;
+	PLOT TUACTIVITY_N*erbmi;
+run;
+
+/* clear titles/footnotes */
+title;
+footnote;
+
 
 *******************************************************************************;
 * Research Question 3 Analysis Starting Point;
@@ -161,49 +199,58 @@ frequencies.
 
 Limitations: Values of Exercise are limited to integer values 1 or 2. 1-
 exercise besides work 2 - no exercise.
+
+Methodology: Use proc sort to create a temporary dataset in descending
+order and then subsetting that set to obtain the higest value of each unique
+id group. EUEXERCISE is divided into two groups, those that exercise weeekly
+and those that do not, with this in mind a scatter plot is made.
+
+Followup Steps: Visual inspection of a scatterplot of categorical groups is
+not rigorous, even though it can be a helpful initial step. An ANOVA or
+categorical data analysis may yield further insights.
 */
 
-/* Output frequencies of EUEXERCISE to a dataset for manual inspection */
-proc freq
-    data = eresp_actvity_2014_file_v1
-	noprint
-	;
-	table
-	    ERINCOME
-		/ out = TUACTIVITY_frequencies
-	;
-run;
+/* Format of euexercise. */
 
-/* use manual inspection to create bins to study missing-value distribution */
 proc format;
-    value $EUEXERCISE_bins
-	    "1"="Exercise in the Last 7 Days Besides Work"
-		"2"="No Exercise in the Last 7 Days Besides Work"
-		other="Invalid Numerical Value"
-	;
+    value euexer_freq 1 = "Exercise During Week"
+	                   2 = "No Exercise During Week";
 run;
 
-/* inspect study missing-value distribution */
-title "Inspect EUEXERCISE from ehresp_2014";
-proc freq
-    table
-	    EUEXERCISE
-		/ nocum
-	;
-	format
-	    EUEXERCISE $EUEXERCISE_bins.
-	;
-	label EUEXERCISE="Counts of Households INCOME Category"
-	;
+/* I will now sort my data set in descending order so I can get the largest
+value for tuactivity_n and extract the first row per every unique tucaseid so
+I have a new data set. */
+
+proc sort data= resp_activity_2014_file_v2
+    out = exer_lvl_freq_eating_v1;
+	where tuactivity_n is not missing and euexercise IN (1, 2);
+    by tucaseid descending tuactivity_n;
 run;
-title;
+
+data exer_lvl_freq_eating_v2;
+    set exer_lvl_freq_eating_v1;
+    by tucaseid;
+	if first.tucaseid then output;
+run;
+
 title1 justify=left
 'Question 3 of 3: Do people who exercise at least once a week, column EUEXERCISE 
-in enresp2014.csv, determine how often they eat, activity number of secondary 
-eatings enhact_2014?'
-title2 justify=left
-'Rationale: Do people who exercise tend to engage in secondary eating? 
-Once again I have heard conflicting accounts. Sometimes people who go to 
-the gym claim they need to eat protein rich meal for muscle growth. 
-And I heard nutritionists talk about calories in and calories out.'
+ in enresp2014.csv, determine how often they eat, activity number of secondary 
+ eatings enhact_2014?'
 ;
+
+title2 justify=left
+'Rationale: Do people who exercise tend to engage in secondary eating? Sometimes people who go to the gym 
+claim they need to eat protein rich meal for muscle growth and more often with smaller meals.'
+;
+
+footnote1 justify=left
+"It looks that a few individuals that do exercise do in fact eat more often. This is consistent with bodybuilders
+ that advocate eating many small meals or after work outs to fuel building of muscle with protein rich food. "
+;
+
+/*scatter plot with euexercise formating*/
+proc sgscatter data = exer_lvl_freq_eating_v2;
+    format euexercise euexer_freq.;
+	PLOT TUACTIVITY_N*EUEXERCISE;
+run;
