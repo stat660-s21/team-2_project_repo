@@ -280,9 +280,9 @@ data resp_activity_2014_file_v2(
 	tucaseid=put(tucaseid_int, z14.);
 run;
 
-proc print 
-	data= resp_activity_2014_file_v2 (obs=15); 
-run;
+/*proc print */
+/*	data= resp_activity_2014_file_v2 (obs=15); */
+/*run;*/
 
 /*Prior to running the proc sort, we already expect duplicates in tucaseid since 
 the ehact_2014_raw was in long format instead of wide format. Therefore when 
@@ -304,6 +304,6 @@ proc sort
 	;
 run;
 
-proc print 
-	data= resp_activity_2014_file_v3 (obs=15); 
-run;
+/*proc print */
+/*	data= resp_activity_2014_file_v3 (obs=15); */
+/*run;*/
