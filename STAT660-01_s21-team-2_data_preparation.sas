@@ -302,4 +302,3 @@ proc sort
 		tucaseid
 	;
 run;
-
