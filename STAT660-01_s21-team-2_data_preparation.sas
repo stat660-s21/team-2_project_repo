@@ -316,4 +316,3 @@ proc sort
 		tuactivity_n
 	;
 run;
-
