@@ -20,8 +20,8 @@ answer the research questions below
 *******************************************************************************;
 
 title1 justify=left
-" Question 1 of 3: What type(s) of activities are more likely to be associated 
-with secondary eating?";
+" Question 1 of 3: Is there a significant difference in secondary eating
+duration among activities?";
 
 title2 justify=left
 "Rationale: Knowing which type(s) of activities increase(s) the likelihood of 
@@ -167,12 +167,48 @@ proc gplot data=resp_actvity_2014_file_v3;
 		ertpreat*ertseat; 
 run;
 
+data secondary_time_by_activity; 
+	set 
+		resp_activity_sorted; 
+	keep 
+		tuactivity TotalTime;
+	by 
+		tuactivity; 
+	if 
+		First.tuactivity=1 
+	then 
+		TotalTime=0;
+	TotalTime+euedur24;
+	if 
+		last.tuactivity=1
+	then 
+		output;
+run;
+
+proc format; 
+	value activity
+		2="Household Activities"
+		3="Caring/Helping for Household Members"
+		4="Caring/Helping for Non-HH Members"
+		5="Work & Work-Related Activities"
+		6="Education"
+		7="Consumer Purchases"
+		8="Professional/Personal Care Services"
+		9="Household Services"
+		10="Goverment Services"
+		11="Eating & Drinking"
+		12="Socializing, Relaxing and Leisure"
+		13="Sports, Exercise, and Recreation"
+		14="Religious and Spiritual Activities"
+		15="Volunteer Activities"
+		16=
+
 *******************************************************************************;
 * Research Question 3 Analysis Starting Point;
 *******************************************************************************;
 title1 justify=left;
-"Question 3 of 3: Is there a significant difference in secondary eating
-among people who exercise and who do not?";
+"Question 3 of 3: Are people who exercise less likely to engage in secondary
+eating compared to folks that do not?";
 				 
 title2 justify=left
 "Rationale: By statistically prove that exercise can positively affect the habit 
