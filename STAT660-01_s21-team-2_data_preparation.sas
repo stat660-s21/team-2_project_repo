@@ -1,4 +1,3 @@
-*******************************************************************************;
 **************** 80-character banner for column width reference ***************;
 * (set window width to banner width to calibrate line length to 80 characters *;
 *******************************************************************************;
@@ -83,7 +82,7 @@ https://www.kaggle.com/bls/eating-health-module-dataset in an archive.
 */
 %let inputDataset3DSN = ehwgts_2014_raw;
 %let inputDataset3URL =
-https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehwgts_2014.csv
+https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/atusact_2014.csv
 ;
 %let inputDataset3Type = csv;
 
@@ -181,7 +180,7 @@ proc sort
 		not(missing(tucaseid))
 		and
 		/*remove rows for missing family person id number */
-		not(missing(tulineno)
+		not(missing(tulineno))
 	;
     by
 		tucaseid
@@ -228,6 +227,7 @@ data resp_activity_2014_file_v1;
 	retain
 		tucaseid
 		tuactivity_n
+		TUTIER1CODE
 		ertpreat
 		ertseat
 		euexercise
@@ -239,6 +239,7 @@ data resp_activity_2014_file_v1;
 	keep
 		tucaseid
 		tuactivity_n
+		TUTIER1CODE
 		ertpreat
 		ertseat
 		euexercise
@@ -250,6 +251,7 @@ data resp_activity_2014_file_v1;
 	merge
 		ehresp_2014_raw
 		ehact_2014_raw
+		ehwgts_2014_raw
 	;
 	by
 		tucaseid
@@ -264,6 +266,7 @@ data resp_activity_2014_file_v2(
 	retain
 		tucaseid
 		tucaseid_n
+		TUTIER1CODE
 		ertpreat
 		ertseat
 		euexercise
@@ -278,10 +281,6 @@ data resp_activity_2014_file_v2(
 			)
 		);
 	tucaseid=put(tucaseid_int, z14.);
-run;
-
-proc print 
-	data= resp_activity_2014_file_v2 (obs=15); 
 run;
 
 /*Prior to running the proc sort, we already expect duplicates in tucaseid since 
@@ -304,6 +303,3 @@ proc sort
 	;
 run;
 
-proc print 
-	data= resp_activity_2014_file_v3 (obs=15); 
-run;
