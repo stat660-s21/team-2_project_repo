@@ -11,7 +11,7 @@
 such as the activity number, whether secondary eating occurred during the 
 activity, and the duration of secondary eating. There are 5 variables.
 
-[Number of Observations] 12,719  
+[Number of Observations] 120,719  
  
 [Number of Features] 5
 
@@ -62,25 +62,27 @@ https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/ehresp_2
 
 
 /* 
-[Dataset 2 Name] ehwgts_2014
+[Dataset 3 Name] atusact_2014
 
-[Dataset Description] The EH Replicate weights file, which contains 
-miscellaneous EH weights. There are 161 variables.
+[Dataset Description] American Time Use Survey 2014 for activity.
+The Activity file contains information about how ATUS respondents 
+spent their diary day. It includes information such as activity codes, 
+activity start and stop times, and locations.
 
 [Experimental Unit Description] Survey Respondents
 
-[Number of Observations] 11,212   
+[Number of Observations] 220,497   
  
-[Number of Features] 161
+[Number of Features] 29
 
 [Data Source] This file was downloaded from
-https://www.kaggle.com/bls/eating-health-module-dataset in an archive.
+https://www.bls.gov/tus/datafiles_2014.htm.
 
 [Data Dictionary] http://www.bls.gov/tus/ehmintcodebk1416.pdf
 
 [Unique ID Schema] The column tucase id is a unique key.
 */
-%let inputDataset3DSN = ehwgts_2014_raw;
+%let inputDataset3DSN = atusact_2014_raw;
 %let inputDataset3URL =
 https://raw.githubusercontent.com/stat660/team-2_project_repo/main/data/atusact_2014.csv
 ;
@@ -190,27 +192,30 @@ run;
  
 
 /*
-For ehwgts_2014_raw, the column tucaseid is a primary key, so any rows
-corresponding to multiple values should be removed. In addition, rows should
-be removed if they are missing values for tucaseid.
+For atusact_2014_raw, the column tucaseid and tuactivity_n is a primary key, 
+so any rows corresponding to multiple values should be removed. In addition, 
+rows should be removed if they are missing values for tucaseid.
 
-After running the proc sort step below, the new dataset ehwgts_2014 will have
+After running the proc sort step below, the new dataset atusact_2014 will have
 no duplicate/repeated unique id values, and all unique id values will
 correspond to our experiment unit of interest, which are individuals
 in unique U.S. families.
 */
 proc sort
 	nodupkey
-	data=ehwgts_2014_raw
-	dupout=ehwgts_2014_raw_dups
-	out=ehwgts_2014
+	data=atusact_2014_raw
+	dupout=atusact_2014_raw_dups
+	out=atusasct_2014
 	;
 	where
 	    /* remove rows with missing primary key */
 		not(missing(tucaseID))
+		and
+		not(missing(tuactivity_n)
 	;
     by
 		tucaseid
+		tuactivity_n
 	;
 run;
 
@@ -251,7 +256,7 @@ data resp_activity_2014_file_v1;
 	merge
 		ehresp_2014_raw
 		ehact_2014_raw
-		ehwgts_2014_raw
+		atusact_2014_raw
 	;
 	by
 		tucaseid
@@ -283,10 +288,16 @@ data resp_activity_2014_file_v2(
 	tucaseid=put(tucaseid_int, z14.);
 run;
 
-/*Prior to running the proc sort, we already expect duplicates in tucaseid since 
-the ehact_2014_raw was in long format instead of wide format. Therefore when 
-activities and respondents file are merged, the final dataset also has long format 
-with repeated tucaseid for each tucaseid_n activity listed in ehact_2014_raw.*/
+/*
+For resp_activity_2014_file_v2, the column tucaseid and tuactivity_n is a primary key, 
+so any rows corresponding to multiple values should be removed. In addition, 
+rows should be removed if they are missing values for tucaseid.
+
+After running the proc sort step below, the new dataset resp_activity_2014_file_v3 will have
+no duplicate/repeated unique id values, and all unique id values will
+correspond to our experiment unit of interest, which are individuals
+in unique U.S. families.
+*/
 
 proc sort
 	nodupkey
@@ -297,9 +308,12 @@ proc sort
 	where
 	    /* remove rows with missing primary key */
 		not(missing(tucaseID))
+		and 
+		not(missing(tuactivity_n))
 	;
     by
 		tucaseid
+		tuactivity_n
 	;
 run;
 
