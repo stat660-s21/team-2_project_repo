@@ -102,7 +102,7 @@ run;
 /* Inspect missing-value distirbution */
 title "Inspect TUACTIVITY from ehact_2014";
 proc freq
-        data=resp_actvity_2014_file_v1
+        data=resp_activity_2014_file_v3
 	;
 	table
 	    TUACTIVITY
