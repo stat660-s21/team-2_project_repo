@@ -44,7 +44,27 @@ proc format;
 		;
 run;
 
-proc print data=resp_activity_2014_file_v3;run;
+proc print data=resp_activity_2014_file_v3(obs=100);run;
+
+proc sort data=resp_activity_2014_file_v3 out=temp ;
+	where
+		euedur24>0
+	;  
+	by 
+		tucaseid  
+		TUTIER1CODE
+	; 
+run; 
+
+proc print data=temp(obs=150);run;
+
+proc freq data=temp nlevels; 
+	table 
+		tucaseid  
+		TUTIER1CODE
+	; 
+run;
+
  
 title3 "Test for normality";
 proc sort data=resp_activity_2014_file_v2 out=sorted; 
