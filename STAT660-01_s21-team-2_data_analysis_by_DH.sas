@@ -18,6 +18,31 @@ answer the research questions below
 *******************************************************************************;
 * Research Question 1 Analysis Starting Point;
 *******************************************************************************;
+/*
+Note: Perform one-way ANOVA with EUEDUR24 as the response variable and 
+TUTIER1CODE as independent variable.
+
+Limitations: Many entries in EUEDUR24 are coded -1 which seems to be illogical. 
+However, those entries indicate "unanswered" or missing values, which can be 
+removed prior to analyzing data.
+
+Methodology: Use proc sort to create a temporary sorted table in asscending
+order by TUTIER1CODE, then use PROC GLM to perform One-way ANOVA and 
+PROC UNIVARIATE to check assumptions.
+
+Followup Steps: Since normality assumption is violated, non-parametric test can
+considered (i.e Kruskal-Wallis Test) using PROC NPAR1WAY
+*/
+
+/* Sort by TUTIER1CODE and filter out invalid value for euedur24 */
+proc sort data=resp_activity_2014_file_v3 out=temp ;
+	where
+		euedur24>0
+	;  
+	by 
+		TUTIER1CODE
+	; 
+run;
 
 title1 justify=left
 " Question 1 of 3: Is there a significant difference in secondary eating
@@ -36,69 +61,11 @@ footnote2 justify=left
 "Futher pairwise comparison suggests that the mean secondary eating time for 
 ";
 
-
-*Creating common format for values in 3 data sets;
-proc format; 
-	value miss 
-		-1,-2,-3= "invalid"
-		;
-run;
-
-proc print data=resp_activity_2014_file_v3;run;
- 
-title3 "Test for normality";
-proc sort data=resp_activity_2014_file_v2 out=sorted; 
-	where euedur24 ge 0;
+proc univariate data=temp normal;
+	title 
+		"Test for normality";	
 	by 
-		tuactivity_n
-	; 
-run;
-
-proc freq data=sorted; 
-	table tuactivity_n; 
-run;
-
-/*data sorted; 
-	set sorted; 
-	if tuactivity_n< 100 then tuactivity=100;
-	else tuactivity=tuactivity_n;
-run;
-proc freq data=sorted order=freq; 
-	table tuactivity_n/out=temp noprint; 
-run;
-*proc print data=temp;run;
-data temp ; 
-	set temp; 
-		if Count <100 then tuactivity='other'; 
-		else tuactivity=tuactivity_n;
-	keep tuactivity_n tuactivity;
-run;
-
-proc print data=temp;run;*/
-
-
-proc print data=sorted(obs=200);run;
-
-data a; 
-	set sorted; 
-	if tuactivity_n in (1,24:56) then tuactivity=100;
-	else tuactivity=tuactivity_n;
-run;
-
-data b; 
-	set resp_activity_2014_file_v2; 
-	where euedur24 >0; 
-	if tuactivity_n in (1,24:56) then tuactivity=100;
-	else tuactivity=tuactivity_n;
-run;
-
-proc sort data=b out=resp_activity_sorted; 
-	by tuactivity; 
-run;
-
-proc univariate data=resp_activity_sorted normal;
-	by 
-		tuactivity
+		TUTIER1CODE
 	;
 	var 
 		euedur24
@@ -106,37 +73,72 @@ proc univariate data=resp_activity_sorted normal;
 	qqplot /normal (mu=est sigma=est);
 run;
 
-
- 
-title4 "Test for equality of variances and perform anova";
-*Perform the Kruskal-Wallis Test;
-proc npar1way data=resp_activity_sorted wilcoxon dscf;
-class tuactivity;
+/*Perform the Kruskal-Wallis Test;
+proc npar1way data=temp wilcoxon dscf;
+class TUTIER1CODE;
 var euedur24;
-run;
-proc glm data=resp_activity_sorted;
+run;*/
+
+/*One-way ANOVA*/
+proc glm data=temp;
+	title 
+		"Test for equality of variances and perform anova"
+	;	
 	class 
-		tuactivity
+		TUTIER1CODE
 	;
 	model 
-		euedur24= tuactivity;
-	means treatment 
-	/ hovtest=levene(type=abs) welch;
-	lsmeans treatment 
-	/pdiff adjust=tukey plot=meanplot(connect cl) lines;
+		euedur24= TUTIER1CODE;
+	random
+		TUTIER1CODE
+	;
+	means 
+		TUTIER1CODE 
+	/ hovtest=
+		levene(type=abs) welch
+	;
+	lsmeans 
+		TUTIER1CODE 
+	/pdiff=all adjust=tukey ;
 run;
 quit;
+
+proc sgplot data=temp; 
+	title
+		"Boxplots of Secondary Eating Duration by TUTIER1CODE"
+	;
+	vbox 
+		euedur24
+	/ category=
+		TUTIER1CODE
+	;
+run;
 title;
 footnote;
 
 *******************************************************************************;
 * Research Question 2 Analysis Starting Point;
 *******************************************************************************;
+/*
+Note: Rank the activites by secondary eating duration in descending order.
 
-title1" Is there a relationship between primary and seconday eating 
-among households?";
+Limitations:  Many entries in EUEDUR24 are coded -1 which seems to be illogical. 
+However, those entries indicate "unanswered" or missing values, which can be 
+removed prior to analyzing data.
+
+Methodology: Use proc sort to create a temporary sorted table in descending
+order by frpm_rate_change_2014_to_2015, with ties broken by school name. Then
+use proc print to print the first five rows of the sorted dataset.
+
+Followup Steps: More carefully clean values in order to filter out any possible
+illegal values, and better handle missing data, e.g., by using a previous year's
+data or a rolling average of previous years' data as a proxy.
+*/
+title1
+"Secondary eating occurs the longest during what type(s) of activity?";
 				 
-title2"Rationale: By answering this question helps generalize common eating habits 
+title2
+"Rationale: By answering this question helps generalize common eating habits 
 of people.";
 
 footnote1" Find the correlation between the columns ERTPREAT and ERTSEAT of 
@@ -166,25 +168,6 @@ proc gplot data=resp_actvity_2014_file_v3;
 	plot 
 		ertpreat*ertseat; 
 run;
-
-data secondary_time_by_activity; 
-	set 
-		resp_activity_sorted; 
-	keep 
-		tuactivity TotalTime;
-	by 
-		tuactivity; 
-	if 
-		First.tuactivity=1 
-	then 
-		TotalTime=0;
-	TotalTime+euedur24;
-	if 
-		last.tuactivity=1
-	then 
-		output;
-run;
-
 proc format; 
 	value activity
 		2="Household Activities"
@@ -201,11 +184,78 @@ proc format;
 		13="Sports, Exercise, and Recreation"
 		14="Religious and Spiritual Activities"
 		15="Volunteer Activities"
-		16=
+		16="Telephone Calls"
+		18="Traveling"
+		50="Other"
+	; 
+run;
+data secondary_time_by_activity; 
+	set 
+		temp
+	; 
+	keep 
+		TUTIER1CODE 
+		euedur24 
+		TotalTime
+	;
+	by 
+		TUTIER1CODE
+	; 
+	if 
+		First.TUTIER1CODE=1 
+	then 
+		TotalTime=0
+	;
+		TotalTime+euedur24
+	;
+	if 
+		Last.TUTIER1CODE=1
+	;
+	format 
+		TUTIER1CODE activity.
+	;
+	drop 
+		euedur24
+	;
+run;
+
+proc sort 
+	data=
+		secondary_time_by_activity 
+	out= 
+		sorted_secondary_time_by_activity
+	; 
+	by
+		TotalTime
+	;
+run;
+
+proc sgplot data=secondary_time_by_activity;
+	vbar TUTIER1CODE/response=TotalTime;
+	format TUTIER1CODE activity.; 
+run;
 
 *******************************************************************************;
 * Research Question 3 Analysis Starting Point;
 *******************************************************************************;
+
+/*
+Note: Perform two-sample t-test(duration) on the columns EUEXERCISE and 
+ERTSEAT of resp_act_file_2014_v3. 
+
+Limitations: Several entries in ERTSEAT are coded as negative values
+which seems to be illogical. However, those entries indicate "unanswered" or 
+blank values, which can be removed prior to analyzing data.
+
+Methodology: Use proc sort to create a temporary sorted table in asscending
+order by euexercise, then use Wilcoxon Signed Rank Test from PROC NPAR1WAY 
+to compare the secondary eating time in exercise and non-exercise groups. 
+PROC UNIVARIATE to check for normality assumption. 
+
+Follow-up: Use historical data to further elaborate on this research question. 
+Another option is to use line graph on data from previous year to study the 
+trend in secondary eating duration of exercise and non-exercise people.
+*/ 
 title1 justify=left;
 "Question 3 of 3: Are people who exercise less likely to engage in secondary
 eating compared to folks that do not?";
@@ -221,34 +271,53 @@ title3 justify=left
 footnote1 justify=left
 "The p-value is  _____.";
 
-/*Note: Perform two-sample t-test(duration) on the columns EUEXERCISE and 
-ERTSEAT of ehresp_2014_raw. 
 
-Limitations: Several entries in ERTSEAT are coded as negative values
-which seems to be illogical. However, those entries indicate "unanswered" or 
-blank values, which can be removed prior to analyzing data.
 
-*/ 
-/*proc freq data=resp_activity_2014_file_v3; 
-	where euexercise NOTIN (-1,-2,-3) and ertseat NOTIN (-1,-2,-3);
-	table euexercise*ertseat/ nocum norow nocol nopercent;
-run;
-	
-title;
-
-proc sgplot data=resp_activity_2014_file_v3; 
-	format 
-		euexercise miss.;
+proc sgplot data=exercise; 
+	title
+		"Boxplot of EARTSEAT by EUEXERCISE"
+	; 
 	vbox 
 		ertseat/ category=euexercise; 
-run;*/
-
-data exercise; 
-	set resp_activity_2014_file_v2; 
-	where euexercise > 0 and ertseat >0;
 run;
-proc NPAR1WAY data=exercise wilcoxon; 
-	class euexercise; 
-	var ertseat; 
+
+proc sort 
+	data=
+		resp_activity_2014_file_v3 
+	out=
+		exercise
+	 ; 
+	where 
+		euexercise > 0 and ertseat >0
+	;
+	by 
+		euexercise
+	;
+run;
+
+proc univariate data=exercise normal;
+	title 
+		"Test for normality";	
+	by 
+		euexercise
+	;
+	var 
+		ertseat
+	;
+	qqplot /normal (mu=est sigma=est);
+run;
+
+proc NPAR1WAY 
+	data=
+		exercise wilcoxon
+	; 
+	class 
+		euexercise
+	; 
+	var 
+		ertseat
+	; 
 	exact wilcoxon; 
 run;
+
+
