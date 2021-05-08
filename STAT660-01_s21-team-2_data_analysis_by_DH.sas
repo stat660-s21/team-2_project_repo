@@ -126,48 +126,28 @@ Limitations:  Many entries in EUEDUR24 are coded -1 which seems to be illogical.
 However, those entries indicate "unanswered" or missing values, which can be 
 removed prior to analyzing data.
 
-Methodology: Use proc sort to create a temporary sorted table in descending
-order by frpm_rate_change_2014_to_2015, with ties broken by school name. Then
-use proc print to print the first five rows of the sorted dataset.
+Methodology: Use DATA step and temporary variables FIRST. and LAST. to calculate 
+the total eating duration for each activity. 
 
-Followup Steps: More carefully clean values in order to filter out any possible
-illegal values, and better handle missing data, e.g., by using a previous year's
-data or a rolling average of previous years' data as a proxy.
+Followup Steps: This is high-level information. To get a
 */
-title1
+
+title1 justify=leaft
 "Secondary eating occurs the longest during what type(s) of activity?";
 				 
-title2
+title2 justify=left
 "Rationale: By answering this question helps generalize common eating habits 
 of people.";
 
-footnote1" Find the correlation between the columns ERTPREAT and ERTSEAT of 
+footnote1 justify=left
+" Find the correlation between the columns ERTPREAT and ERTSEAT of 
 ehresp_2014_raw";
 
-footnote2" Several entries in ERTPREAT and ERTSEAT are coded as negative values
+footnote2 justify=left
+" Several entries in ERTPREAT and ERTSEAT are coded as negative values
 which seems to be illogical. However, those entries indicate "unanswered" or 
 blank values, which can be removed prior to analyzing data.";
 
-title3 "Frequency tables of primary and secondary eating";
-proc freq data=resp_activity_2014_file_v2 nlevels;
-	table 
-		ERTPREAT ERTSEAT;
-	format 
-		ERTSEAT miss.;
-run;
-
-proc corr data=resp_activity_2014_file_v2; 
-	var 
-		ertpreat; 
-	with 
-		ertseat; 
-run; 
-
-title "Scatterplot of Primary vs Secondary Eating";
-proc gplot data=resp_actvity_2014_file_v3; 
-	plot 
-		ertpreat*ertseat; 
-run;
 proc format; 
 	value activity
 		2="Household Activities"
@@ -230,9 +210,21 @@ proc sort
 	;
 run;
 
-proc sgplot data=secondary_time_by_activity;
-	vbar TUTIER1CODE/response=TotalTime;
-	format TUTIER1CODE activity.; 
+proc sgplot
+	data=
+		secondary_time_by_activity
+	;
+	title
+		"Secondary Eating Duration by Activities"
+	; 
+	vbar 
+		TUTIER1CODE
+	/response=
+		TotalTime
+	;
+	format 
+		TUTIER1CODE activity.
+	; 
 run;
 
 *******************************************************************************;
@@ -256,6 +248,7 @@ Follow-up: Use historical data to further elaborate on this research question.
 Another option is to use line graph on data from previous year to study the 
 trend in secondary eating duration of exercise and non-exercise people.
 */ 
+
 title1 justify=left;
 "Question 3 of 3: Are people who exercise less likely to engage in secondary
 eating compared to folks that do not?";
