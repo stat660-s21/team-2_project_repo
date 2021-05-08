@@ -211,7 +211,7 @@ proc sort
 	    /* remove rows with missing primary key */
 		not(missing(tucaseID))
 		and
-		not(missing(tuactivity_n)
+		not(missing(tuactivity_n))
 	;
     by
 		tucaseid
