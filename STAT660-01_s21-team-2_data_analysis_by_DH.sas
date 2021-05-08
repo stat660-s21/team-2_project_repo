@@ -94,8 +94,10 @@ ods graphics off;
 
 footnote;
 footnote3 justify=left
-"P-values of 0 suggests that the normality assumption is violated.   
-Validity of conclusion should be reconsidered and re-evaluated with 
+"P-values of 0 suggests that the normality assumption is violated.";
+
+footnote4 justify=left 
+"Validity of conclusion should be reconsidered and re-evaluated with 
 non-paramatric method such as Kruskal-Wallis Test.";
 
 proc univariate data=temp normal;
@@ -189,9 +191,7 @@ data secondary_time_by_activity;
 	format 
 		TUTIER1CODE activity.
 	;
-	drop 
-		euedur24
-	;
+
 run;
 
 proc sort 
@@ -304,8 +304,8 @@ run;
 
 footnote;
 footnote2 justify=left
-"Since p-values for Shapiro-Wilks is almost 0, we can safely say that the 
-normality assumption is violated, thus proceed with non-parametric test.";
+"P-values for Shapiro-Wilks are almost 0,the normality assumption is violated, 
+thus non-parametric test.";
 
 proc univariate data=exercise normal;
 	title 
