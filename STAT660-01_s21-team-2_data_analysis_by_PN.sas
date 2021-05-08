@@ -254,3 +254,7 @@ proc sgscatter data = exer_lvl_freq_eating_v2;
     format euexercise euexer_freq.;
 	PLOT TUACTIVITY_N*EUEXERCISE;
 run;
+
+/* clear titles/footnotes */
+title;
+footnote;
