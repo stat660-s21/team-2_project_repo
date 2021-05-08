@@ -70,7 +70,12 @@ var euedur24;
 run;*/
 
 /*One-way ANOVA*/
-proc glm data=temp;
+ods graphics on;
+proc glm 
+	data=
+		temp
+	PLOTS(MAXPOINTS=10000)
+	;
 	class 
 		TUTIER1CODE
 	;
@@ -79,21 +84,20 @@ proc glm data=temp;
 	random
 		TUTIER1CODE
 	;
-	means 
-		TUTIER1CODE 
-	/ hovtest=
-		levene(type=abs) welch
-	;
 	lsmeans 
 		TUTIER1CODE 
-	/pdiff=all adjust=tukey ;
+	/pdiff=all adjust=tukey plots=none 
+	;
 run;
 quit;
+ods graphics off;
 
 footnote;
 footnote3 justify=left
-"P-values of 0 suggests that the normality assumption is violated.   
-Validity of conclusion should be reconsidered and re-evaluated with 
+"P-values of 0 suggests that the normality assumption is violated.";
+
+footnote4 justify=left 
+"Validity of conclusion should be reconsidered and re-evaluated with 
 non-paramatric method such as Kruskal-Wallis Test.";
 
 proc univariate data=temp normal;
@@ -187,9 +191,7 @@ data secondary_time_by_activity;
 	format 
 		TUTIER1CODE activity.
 	;
-	drop 
-		euedur24
-	;
+
 run;
 
 proc sort 
@@ -302,8 +304,8 @@ run;
 
 footnote;
 footnote2 justify=left
-"Since p-values for Shapiro-Wilks is almost 0, we can safely say that the 
-normality assumption is violated, thus proceed with non-parametric test.";
+"P-values for Shapiro-Wilks are almost 0,the normality assumption is violated, 
+thus non-parametric test.";
 
 proc univariate data=exercise normal;
 	title 
