@@ -70,7 +70,12 @@ var euedur24;
 run;*/
 
 /*One-way ANOVA*/
-proc glm data=temp;
+ods graphics on;
+proc glm 
+	data=
+		temp
+	PLOTS(MAXPOINTS=10000)
+	;
 	class 
 		TUTIER1CODE
 	;
@@ -79,16 +84,13 @@ proc glm data=temp;
 	random
 		TUTIER1CODE
 	;
-	means 
-		TUTIER1CODE 
-	/ hovtest=
-		levene(type=abs) welch
-	;
 	lsmeans 
 		TUTIER1CODE 
-	/pdiff=all adjust=tukey ;
+	/pdiff=all adjust=tukey plots=none 
+	;
 run;
 quit;
+ods graphics off;
 
 footnote;
 footnote3 justify=left
