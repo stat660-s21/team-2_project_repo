@@ -58,20 +58,10 @@ statistically significiant difference in secondary eating time among
 activities";
 
 footnote2 justify=left
-"Futher pairwise comparison suggests that the mean secondary eating time for 
-";
-
-proc univariate data=temp normal;
-	title 
-		"Test for normality";	
-	by 
-		TUTIER1CODE
-	;
-	var 
-		euedur24
-	;
-	qqplot /normal (mu=est sigma=est);
-run;
+"Futher pairwise comparison suggests that the mean secondary eating time are 
+different for some pairs of activities such as 2(Household Activities) and 
+5(Work & Work-Related Activities), or 11(Eating & Drinking) and 16(
+Telephone Calls) and more.";
 
 /*Perform the Kruskal-Wallis Test;
 proc npar1way data=temp wilcoxon dscf;
@@ -81,9 +71,6 @@ run;*/
 
 /*One-way ANOVA*/
 proc glm data=temp;
-	title 
-		"Test for equality of variances and perform anova"
-	;	
 	class 
 		TUTIER1CODE
 	;
@@ -103,7 +90,25 @@ proc glm data=temp;
 run;
 quit;
 
-proc sgplot data=temp; 
+footnote;
+footnote3 justify=left
+"P-values of 0 suggests that the normality assumption is violated.   
+Validity of conclusion should be reconsidered and re-evaluated with 
+non-paramatric method such as Kruskal-Wallis Test.";
+
+proc univariate data=temp normal;
+	title 
+		"Test for normality";	
+	by 
+		TUTIER1CODE
+	;
+	var 
+		euedur24
+	;
+	qqplot /normal (mu=est sigma=est);
+run;
+
+/*proc sgplot data=temp; 
 	title
 		"Boxplots of Secondary Eating Duration by TUTIER1CODE"
 	;
@@ -112,7 +117,8 @@ proc sgplot data=temp;
 	/ category=
 		TUTIER1CODE
 	;
-run;
+run;*/
+
 title;
 footnote;
 
@@ -126,50 +132,16 @@ Limitations:  Many entries in EUEDUR24 are coded -1 which seems to be illogical.
 However, those entries indicate "unanswered" or missing values, which can be 
 removed prior to analyzing data.
 
-Methodology: Use proc sort to create a temporary sorted table in descending
-order by frpm_rate_change_2014_to_2015, with ties broken by school name. Then
-use proc print to print the first five rows of the sorted dataset.
+Methodology: Use DATA step and temporary variables FIRST. and LAST. to calculate 
+the total eating duration for each activity. 
 
-Followup Steps: More carefully clean values in order to filter out any possible
-illegal values, and better handle missing data, e.g., by using a previous year's
-data or a rolling average of previous years' data as a proxy.
+Followup Steps: This is high-level information. To go more specifically, could 
+include TIER2 activity code
 */
-title1
-"Secondary eating occurs the longest during what type(s) of activity?";
-				 
-title2
-"Rationale: By answering this question helps generalize common eating habits 
-of people.";
 
-footnote1" Find the correlation between the columns ERTPREAT and ERTSEAT of 
-ehresp_2014_raw";
-
-footnote2" Several entries in ERTPREAT and ERTSEAT are coded as negative values
-which seems to be illogical. However, those entries indicate "unanswered" or 
-blank values, which can be removed prior to analyzing data.";
-
-title3 "Frequency tables of primary and secondary eating";
-proc freq data=resp_activity_2014_file_v2 nlevels;
-	table 
-		ERTPREAT ERTSEAT;
-	format 
-		ERTSEAT miss.;
-run;
-
-proc corr data=resp_activity_2014_file_v2; 
-	var 
-		ertpreat; 
-	with 
-		ertseat; 
-run; 
-
-title "Scatterplot of Primary vs Secondary Eating";
-proc gplot data=resp_actvity_2014_file_v3; 
-	plot 
-		ertpreat*ertseat; 
-run;
 proc format; 
 	value activity
+		1="Personal Care"
 		2="Household Activities"
 		3="Caring/Helping for Household Members"
 		4="Caring/Helping for Non-HH Members"
@@ -189,6 +161,7 @@ proc format;
 		50="Other"
 	; 
 run;
+
 data secondary_time_by_activity; 
 	set 
 		temp
@@ -223,17 +196,50 @@ proc sort
 	data=
 		secondary_time_by_activity 
 	out= 
-		sorted_secondary_time_by_activity
+		sorted_secondary
 	; 
 	by
-		TotalTime
+		descending TotalTime
 	;
 run;
 
-proc sgplot data=secondary_time_by_activity;
-	vbar TUTIER1CODE/response=TotalTime;
-	format TUTIER1CODE activity.; 
+title1 
+"Secondary eating occurs the longest during what type(s) of activity?";
+
+title2 justify=left
+"Rationale: By answering this question helps generalize common eating habits 
+of people.";
+
+footnote1 justify=left
+"Based on the graph and the sorted list, secondary eating occurs the longest 
+during Socializing, Relaxing and Leisure,Work & Work-Related Activities,and
+Household Activities."; 
+
+proc print 
+	data=
+		sorted_secondary
+	; 
 run;
+
+proc sgplot
+	data=
+		secondary_time_by_activity
+	;
+	title
+		"Secondary Eating Duration by Activities"
+	; 
+	vbar 
+		TUTIER1CODE
+	/response=
+		TotalTime
+	;
+	format 
+		TUTIER1CODE activity.
+	; 
+run;
+
+title;
+footnote;
 
 *******************************************************************************;
 * Research Question 3 Analysis Starting Point;
@@ -255,32 +261,8 @@ PROC UNIVARIATE to check for normality assumption.
 Follow-up: Use historical data to further elaborate on this research question. 
 Another option is to use line graph on data from previous year to study the 
 trend in secondary eating duration of exercise and non-exercise people.
-*/ 
-title1 justify=left;
-"Question 3 of 3: Are people who exercise less likely to engage in secondary
-eating compared to folks that do not?";
-				 
-title2 justify=left
-"Rationale: By statistically prove that exercise can positively affect the habit 
-of secondary eating, we can promote the idea and encourage people to do more
-physical activities.";
-
-title3 justify=left
-"Wilcoxon Sum Ranked Test for euexercise and ertseat"; 
-
-footnote1 justify=left
-"The p-value is  _____.";
-
-
-
-proc sgplot data=exercise; 
-	title
-		"Boxplot of EARTSEAT by EUEXERCISE"
-	; 
-	vbox 
-		ertseat/ category=euexercise; 
-run;
-
+*/
+ 
 proc sort 
 	data=
 		resp_activity_2014_file_v3 
@@ -295,6 +277,34 @@ proc sort
 	;
 run;
 
+title1 justify=left
+"Question 3 of 3: Are people who exercise less likely to engage in secondary
+eating compared to folks that do not?";
+
+title2 justify=left
+"Rationale: By statistically prove that exercise can positively affect the habit 
+of secondary eating, we can promote the idea and encourage people to do more
+physical activities.";
+
+footnote1 justify=left
+"The boxplots of exercise and non-exercise group look quite similar to each 
+other, hinting no potentially significant difference in the eating duration 
+between 2 groups. Appropriate statistical test is necessary to prove this 
+point.";
+
+proc sgplot data=exercise; 
+	title
+		"Boxplot of EARTSEAT by EUEXERCISE"
+	; 
+	vbox 
+		ertseat/ category=euexercise; 
+run;
+
+footnote;
+footnote2 justify=left
+"Since p-values for Shapiro-Wilks is almost 0, we can safely say that the 
+normality assumption is violated, thus proceed with non-parametric test.";
+
 proc univariate data=exercise normal;
 	title 
 		"Test for normality";	
@@ -306,6 +316,25 @@ proc univariate data=exercise normal;
 	;
 	qqplot /normal (mu=est sigma=est);
 run;
+
+title; 
+footnote; 
+
+title3 
+"Kruskal-Wallis Test for Secondary Eating Time between two groups.";
+
+footnote3 justify=left
+"The p-value for Kruskal-Wallis Test is 0.188 which is greater than 
+alpha=0.05, indicating insufficient evidence to reject H0. In other words, 
+there is no significant difference eating secondary eating time between 
+exercise and non-exercise group."; 
+
+footnote4 justify=left
+"It can be reasoned that people tend to engage in secondary eating regardless of 
+their lifestyle. Although people who exercise may be more mindful about how they eat, 
+they can still secondary eat while carrying out other activities such as socializing, 
+watching movies, working, etc. Further invesitgation including analyzing historical 
+data could help answer this question more accurately.";
 
 proc NPAR1WAY 
 	data=
@@ -320,4 +349,5 @@ proc NPAR1WAY
 	exact wilcoxon; 
 run;
 
-
+title;
+footnote;
